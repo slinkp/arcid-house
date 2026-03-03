@@ -68,3 +68,8 @@ h1 {
 
 .step-playing.step-active {
   background: #ff9020;
+}
+
+.hidden {
+  display: none;
+}

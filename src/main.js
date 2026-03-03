@@ -1,6 +1,6 @@
 import './style.css'
 import * as Tone from 'tone'
-import { PLAYER_1 } from '@rcade/plugin-input-classic'
+import { PLAYER_1, SYSTEM } from '@rcade/plugin-input-classic'
 import { PLAYER_1 as SP1 } from "@rcade/plugin-input-spinners"
 
 const STEPS = 16
@@ -20,12 +20,6 @@ let previousInput = {
 }
 
 const app = document.querySelector('#app')
-app.innerHTML = `
-  <h1>aRCid house</h1>
-  <p id="status">Press 1P START to start audio</p>
-  <div id="step-grid"></div>
-  <p id="debug">x:0 y:1 step:-</p>
-`
 
 const status = document.querySelector('#status')
 const stepGrid = document.querySelector('#step-grid')
@@ -66,7 +60,6 @@ const AudioEngine = {
     this.bpm = bpm
     Tone.Transport.bpm.value = bpm
   },
-
 
   incrementBPM(delta) {
     this.setBPM(this.bpm + delta)
@@ -111,62 +104,69 @@ function renderSteps() {
   debug.textContent = `x:${cursor.x} y:${cursor.y} step:${playingStep >= 0 ? playingStep : '-'}`
 }
 
-async function startPlaybackFromGesture() {
+async function startPlayback() {
   try {
     await AudioEngine.startAudioContext()
     AudioEngine.play()
-    status.textContent = '120 BPM'
-    window.removeEventListener('pointerdown', startPlaybackFromGesture)
-    window.removeEventListener('keydown', startPlaybackFromGesture)
   } catch {
     status.textContent = 'Audio start blocked, try again'
   }
 }
 
+let gameStarted = false;
+
 function update() {
-// TODO: we'll have player2 later so remove these consts.
-  const left = PLAYER_1.DPAD.left
-  const right = PLAYER_1.DPAD.right
-  const up = PLAYER_1.DPAD.up
-  const down = PLAYER_1.DPAD.down
-  const a = PLAYER_1.A
-
-  if (left && !previousInput.left) {
-    cursor.x = wrapStep(cursor.x - 1)
-  }
-
-  if (right && !previousInput.right) {
-    cursor.x = wrapStep(cursor.x + 1)
-  }
-
-  if (up && !previousInput.up) {
-    // Reserved for future row navigation.
-  }
-
-  if (down && !previousInput.down) {
-    // Reserved for future row navigation.
-  }
-
-  if (a && !previousInput.a) {
-    pattern[cursor.x] ^= 1
-  }
-
-  // TEMPORARY: BPM control hardwired to spinner.
-  const delta1 = SPIN1.consume_step_delta();
-  if (delta1 !== 0) {
-    // TODO: debounce to make smoother, or sometthing
-    if (delta1 > 0) {
-      AudioEngine.incrementBPM(0.2)
+  if (!gameStarted) {
+    if (SYSTEM.ONE_PLAYER) {
+        gameStarted = true
+        document.querySelector('#start-screen').classList.add('hidden')
+        document.querySelector('#running-app').classList.remove('hidden')
+        startPlayback()
     }
-    if (delta1 < 0) {
-      AudioEngine.incrementBPM(-0.2)
-    }
-    const displayBpm = AudioEngine.bpm.toFixed(1)
-    status.textContent = `${displayBpm} BPM`
+  } else {
+      // TODO: we'll have player2 later so remove these consts.
+      const left = PLAYER_1.DPAD.left
+      const right = PLAYER_1.DPAD.right
+      const up = PLAYER_1.DPAD.up
+      const down = PLAYER_1.DPAD.down
+      const a = PLAYER_1.A
+
+      if (left && !previousInput.left) {
+          cursor.x = wrapStep(cursor.x - 1)
+      }
+
+      if (right && !previousInput.right) {
+          cursor.x = wrapStep(cursor.x + 1)
+      }
+
+      if (up && !previousInput.up) {
+          // Reserved for future row navigation.
+      }
+
+      if (down && !previousInput.down) {
+          // Reserved for future row navigation.
+      }
+
+      if (a && !previousInput.a) {
+          pattern[cursor.x] ^= 1
+      }
+
+      // TEMPORARY: BPM control hardwired to spinner.
+      const delta1 = SPIN1.consume_step_delta();
+      // TODO: debounce to make smoother, or sometthing
+      if (delta1 > 0) {
+          AudioEngine.incrementBPM(0.2)
+      }
+      if (delta1 < 0) {
+          AudioEngine.incrementBPM(-0.2)
+      }
+
+      status.textContent = `${AudioEngine.niceBPM} BPM asdf`
+      
+      previousInput = { left, right, up, down, a }
+      renderSteps()
+      
   }
-  
-  previousInput = { left, right, up, down, a }
-  renderSteps()
   requestAnimationFrame(update)
 }
 
@@ -175,8 +175,5 @@ AudioEngine.onStep = (stepIndex) => {
   playingStep = stepIndex
   renderSteps()
 }
-window.addEventListener('pointerdown', startPlaybackFromGesture)
-window.addEventListener('keydown', startPlaybackFromGesture)
 
-renderSteps()
 update()
