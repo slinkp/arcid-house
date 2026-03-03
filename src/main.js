@@ -40,6 +40,7 @@ const AudioEngine = {
   kick: null,
   sequence: null,
   bpm: DEFAULT_BPM,
+  niceBPM: DEFAULT_BPM,
 
   init() {
     if (this.initialized) return
@@ -59,6 +60,7 @@ const AudioEngine = {
   setBPM(bpm) {
     this.bpm = bpm
     Tone.Transport.bpm.value = bpm
+    this.niceBPM = bpm.toFixed(1)
   },
 
   incrementBPM(delta) {
@@ -161,7 +163,7 @@ function update() {
           AudioEngine.incrementBPM(-0.2)
       }
 
-      status.textContent = `${AudioEngine.niceBPM} BPM asdf`
+      status.textContent = `${AudioEngine.niceBPM} BPM`
       
       previousInput = { left, right, up, down, a }
       renderSteps()
