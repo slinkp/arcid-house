@@ -37,6 +37,45 @@ h1 {
   color: #669;
 }
 
+#global-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#play-pause {
+  background: #333;
+  border: 1px solid #555;
+  color: #eee;
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+#bpm-control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+#bpm {
+  background: #111;
+  border: 1px solid #555;
+  color: #eee;
+  font-size: 10px;
+  font-weight: 700;
+  width: 44px;
+  text-align: right;
+  padding: 2px 4px;
+}
+
 #step-grid {
   display: grid;
   grid-template-columns: repeat(16, 1fr);
