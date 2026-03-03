@@ -76,22 +76,22 @@ const pattern = [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0];
 
 ### Phase 1 — Audio Playback
 
-- [ ] Add Tone.js, bundled, we use npm
-- [ ] Implement `AudioEngine` stub object
-- [ ] use `Tone.MembraneSynth` for basic kick sound
-- [ ] Implement `AudioEngine.triggerDrum()` wrapping the player/synth
-- [ ] Define `pattern` array with quarter notes: `[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]`
-- [ ] Wire up `Tone.Sequence` iterating 16 steps, calling `triggerDrum` on `1`s
-- [ ] Hardcode BPM to 120
-- [ ] **Auto-start playback on page load** — call `Tone.start()` and `Tone.Transport.start()` on first user gesture (click/keypress), then loop forever
-- [ ] Verify kick plays in browser before proceeding
+- [x] Add Tone.js, bundled, we use npm
+- [x] Implement `AudioEngine` stub object
+- [x] use `Tone.MembraneSynth` for basic kick sound
+- [x] Implement `AudioEngine.triggerDrum()` wrapping the player/synth
+- [x] Define `pattern` array with quarter notes: `[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]`
+- [x] Wire up `Tone.Sequence` iterating 16 steps, calling `triggerDrum` on `1`s
+- [x] Hardcode BPM to 120
+- [x] **Auto-start playback on page load** — call `Tone.start()` and `Tone.Transport.start()` on first user gesture (click/keypress), then loop forever
+- [x] Verify kick plays in browser before proceeding
 
 ### Phase 2 — Step Sequencer UI
 
-- [ ] Render 16 buttons in a horizontal row using CSS grid
-- [ ] Each button visually reflects `pattern[i]`: lit (active) vs dark (inactive)
-- [ ] Target button size: ~16px wide, fit within 320px with minimal padding
-- [ ] Define CSS classes: `.step`, `.step-active`, `.step-cursor`, `.step-playing`
+- [x] Render 16 buttons in a horizontal row using CSS grid
+- [x] Each button visually reflects `pattern[i]`: lit (active) vs dark (inactive)
+- [x] Target button size: ~16px wide, fit within 320px with minimal padding
+- [x] Define CSS classes: `.step`, `.step-active`, `.step-cursor`, `.step-playing`
       These must be visually distinct from each other in all combinations (except that step and step-active are mutually exclusive).
 
 
@@ -121,24 +121,24 @@ function gameLoop() {
 }
 ```
 
-- [ ] Implement `cursor = { x: 0, y: 1 }`
-- [ ] `PLAYER_1.DPAD.left` / `PLAYER_1.DPAD.right`: decrement/increment `cursor.x`, wrap at 0 and 15
-- [ ] `PLAYER_1.DPAD.up` / `PLAYER_1.DPAD.down`: reserved for future row navigation, no-op for now
-- [ ] Render cursor highlight on `buttons[cursor.x]` using `.step-cursor` class
-- [ ] `PLAYER_1.A`: toggle `pattern[cursor.x] ^= 1`, update button class
-- [ ] Do NOT add any computer keyboard navigation fallback: plugin-input-classic already does that
+- [x] Implement `cursor = { x: 0, y: 1 }`
+- [x] `PLAYER_1.DPAD.left` / `PLAYER_1.DPAD.right`: decrement/increment `cursor.x`, wrap at 0 and 15
+- [x] `PLAYER_1.DPAD.up` / `PLAYER_1.DPAD.down`: reserved for future row navigation, no-op for now
+- [x] Render cursor highlight on `buttons[cursor.x]` using `.step-cursor` class
+- [x] `PLAYER_1.A`: toggle `pattern[cursor.x] ^= 1`, update button class
+- [x] Do NOT add any computer keyboard navigation fallback: plugin-input-classic already does that
 
 ### Phase 4 — Playback Position Indicator
 
-- [ ] In the `Tone.Sequence` callback, update a `playingStep` variable with current step index
-- [ ] Trigger a lightweight UI update — re-apply classes to all 16 buttons each tick
+- [x] In the `Tone.Sequence` callback, update a `playingStep` variable with current step index
+- [x] Trigger a lightweight UI update — re-apply classes to all 16 buttons each tick
 
 ### Phase 5 — Verification & Buffer
 
-- [ ] Confirm loop plays forever without drift or stopping
-- [ ] Confirm toggling steps while playing updates pattern immediately on next loop
-- [ ] Confirm cursor and playing indicators are visually distinguishable at 320×240
-- [ ] Basic smoke test: load page, hear kick, move cursor, toggle steps, observe changes
+- [x] Confirm loop plays forever without drift or stopping
+- [x] Confirm toggling steps while playing updates pattern immediately on next loop
+- [x] Confirm cursor and playing indicators are visually distinguishable at 320×240
+- [x] Basic smoke test: load page, hear kick, move cursor, toggle steps, observe changes
 
 ---
 
