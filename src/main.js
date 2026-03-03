@@ -1,11 +1,14 @@
 import './style.css'
 import * as Tone from 'tone'
 import { PLAYER_1 } from '@rcade/plugin-input-classic'
+import { PLAYER_1 as SP1 } from "@rcade/plugin-input-spinners"
 
 const STEPS = 16
 const DEFAULT_BPM = 120
 const cursor = { x: 0, y: 1 } // y:0 reserved for global controls row
 const pattern = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]
+
+const SPIN1 = SP1.SPINNER
 
 let playingStep = -1
 let previousInput = {
@@ -42,6 +45,7 @@ const AudioEngine = {
   onStep: null,
   kick: null,
   sequence: null,
+  bpm: DEFAULT_BPM,
 
   init() {
     if (this.initialized) return
@@ -55,12 +59,17 @@ const AudioEngine = {
     }, [...Array(STEPS).keys()], '16n')
 
     this.sequence.start(0)
-    this.setBPM(DEFAULT_BPM)
     this.initialized = true
   },
 
   setBPM(bpm) {
+    this.bpm = bpm
     Tone.Transport.bpm.value = bpm
+  },
+
+
+  incrementBPM(delta) {
+    this.setBPM(this.bpm + delta)
   },
 
   async startAudioContext() {
@@ -106,7 +115,7 @@ async function startPlaybackFromGesture() {
   try {
     await AudioEngine.startAudioContext()
     AudioEngine.play()
-    status.textContent = 'Playing at 120 BPM'
+    status.textContent = '120 BPM'
     window.removeEventListener('pointerdown', startPlaybackFromGesture)
     window.removeEventListener('keydown', startPlaybackFromGesture)
   } catch {
@@ -142,6 +151,20 @@ function update() {
     pattern[cursor.x] ^= 1
   }
 
+  // TEMPORARY: BPM control hardwired to spinner.
+  const delta1 = SPIN1.consume_step_delta();
+  if (delta1 !== 0) {
+    // TODO: debounce to make smoother, or sometthing
+    if (delta1 > 0) {
+      AudioEngine.incrementBPM(0.2)
+    }
+    if (delta1 < 0) {
+      AudioEngine.incrementBPM(-0.2)
+    }
+    const displayBpm = AudioEngine.bpm.toFixed(1)
+    status.textContent = `${displayBpm} BPM`
+  }
+  
   previousInput = { left, right, up, down, a }
   renderSteps()
   requestAnimationFrame(update)
