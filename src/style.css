@@ -34,6 +34,10 @@ h1 {
   line-height: 1.2;
 }
 
+#debug {
+  color: #669;
+}
+
 #step-grid {
   display: grid;
   grid-template-columns: repeat(16, 1fr);
