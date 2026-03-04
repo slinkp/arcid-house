@@ -265,8 +265,7 @@ function startGame() {
       document.querySelector('#running-app').classList.remove('hidden')
       renderSteps()
       focusGraph = buildFocusGraph()
-      startPlayback()
-  }
+   }
 }
 
 /**************************************************************************************** 
@@ -274,7 +273,7 @@ function startGame() {
  ***************************************************************************************/
 
 function update() {
-  if (!gameStarted) {
+  if (!gameStarted && SYSTEM.ONE_PLAYER) {
     startGame()
   } else {
     handleControls()
