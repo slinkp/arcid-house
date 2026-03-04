@@ -258,17 +258,24 @@ function buildFocusGraph() {
   return neighbors
 }
 
-
-function update() {
+function startGame() {
   if (!gameStarted) {
-    if (SYSTEM.ONE_PLAYER) {
       gameStarted = true
       document.querySelector('#start-screen').classList.add('hidden')
       document.querySelector('#running-app').classList.remove('hidden')
       renderSteps()
       focusGraph = buildFocusGraph()
       startPlayback()
-    }
+  }
+}
+
+/**************************************************************************************** 
+ * MAIN GAME LOOP
+ ***************************************************************************************/
+
+function update() {
+  if (!gameStarted) {
+    startGame()
   } else {
     handleControls()
     renderSteps()
