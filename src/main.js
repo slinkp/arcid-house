@@ -34,8 +34,10 @@ const DEFAULT_FOCUS_ID = "play-pause"
 
 for (let index = 0; index < STEPS; index += 1) {
   const button = document.createElement('div')
+  button.setAttribute('tabindex', -1) // make focusable but not via tab-key
   button.classList.add('step')
   button.classList.add('widget')
+  button.dataset.stepIndex = index // for mapping to pattern array
   stepGrid.appendChild(button)
   stepButtons.push(button)
 }
@@ -150,8 +152,8 @@ function handleControls() {
 
   if (a && !previousInput.a) {
     if (focusedWidget.classList.contains('step')) {
-      var foo = "TBD"
-      pattern[foo] ^= 1
+      const beat = focusedWidget.dataset.stepIndex
+      pattern[beat] ^= 1
     } else {
       // TODO: handle other actionable widget types
     }
