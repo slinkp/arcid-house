@@ -117,6 +117,8 @@ async function startPlayback() {
 }
 
 function handleControls() {
+  // TODO: refactor to be more modular and just forward to handlers for each widget type.
+
   // TODO: we'll have player2 later so remove these consts.
   const left = PLAYER_1.DPAD.left
   const right = PLAYER_1.DPAD.right
@@ -155,16 +157,22 @@ function handleControls() {
     }
   }
 
-  // TEMPORARY: BPM control hardwired to spinner.
   const delta1 = SPIN1.consume_step_delta();
-  // TODO: debounce to make smoother, or sometthing
-  if (delta1 > 0) {
-    AudioEngine.incrementBPM(0.2)
-    status.textContent = `${AudioEngine.niceBPM} BPM`
-  }
-  if (delta1 < 0) {
-    AudioEngine.incrementBPM(-0.2)
-    status.textContent = `${AudioEngine.niceBPM} BPM`
+  if (delta1 !== 0) {
+    if (focusedWidget.id == 'bpm') {
+      // TODO: make this smoother? hardwiring 0.2 is a hack to make it usable in browser, 
+      // but it limits speed on spinner hardware
+      if (delta1 > 0) {
+        AudioEngine.incrementBPM(0.2)
+      }
+      if (delta1 < 0) {
+        AudioEngine.incrementBPM(-0.2)
+      }
+      focusedWidget.value = AudioEngine.bpm.toFixed(1).toString()
+    }
+    else {
+      // TODO: handle other spinnable widgets
+    }
   }
 
   previousInput = { left, right, up, down, a }

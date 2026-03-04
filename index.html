@@ -12,17 +12,18 @@
 
   <div id="start-screen">
     <h1>aRCid house</h1>
-    <div id="controls"> control instructions go here </div>
+    <div id="controls"> 
+      <p>press 1P START</p>
+      <p> more control instructions go here </p>
+    </div>
   </div>
-
-  <p id="status">Press 1P START</p>
 
   <div id="running-app" class="hidden">
     <h2>drums</h2>
     <div id="global-controls" class="widget-row">
       <button id="play-pause" class="widget">&#9654;</button>
       <label id="bpm-control">
-        BPM <input type="number" id="bpm" value="120" min="20" max="300" class="widget"/>
+        BPM <input type="number" id="bpm" value="120" min="20" max="300" class="widget" readonly/>
       </label>
     </div>
     <div id="step-grid" class="widget-row"></div>

@@ -111,3 +111,11 @@ h1 {
 .hidden {
   display: none;
 }
+
+#play-pause {
+  color: #eee;
+}
+
+#play-pause.playing {
+  color: #0F0;
+}
