@@ -49,7 +49,6 @@ const AudioEngine = {
   kick: null,
   sequence: null,
   bpm: DEFAULT_BPM,
-  niceBPM: DEFAULT_BPM,
 
   init() {
     if (this.initialized) return
@@ -70,7 +69,6 @@ const AudioEngine = {
   setBPM(bpm) {
     this.bpm = bpm
     Tone.Transport.bpm.value = bpm
-    this.niceBPM = bpm.toFixed(1)
   },
 
   incrementBPM(delta) {
