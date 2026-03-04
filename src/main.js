@@ -117,57 +117,60 @@ async function startPlayback() {
 
 let gameStarted = false;
 
+function handleControls() {
+  // TODO: we'll have player2 later so remove these consts.
+  const left = PLAYER_1.DPAD.left
+  const right = PLAYER_1.DPAD.right
+  const up = PLAYER_1.DPAD.up
+  const down = PLAYER_1.DPAD.down
+  const a = PLAYER_1.A
+
+  if (left && !previousInput.left) {
+    cursor.x = wrapStep(cursor.x - 1)
+  }
+
+  if (right && !previousInput.right) {
+    cursor.x = wrapStep(cursor.x + 1)
+  }
+
+  if (up && !previousInput.up) {
+    // Reserved for future row navigation.
+  }
+
+  if (down && !previousInput.down) {
+    // Reserved for future row navigation.
+  }
+
+  if (a && !previousInput.a) {
+    pattern[cursor.x] ^= 1
+  }
+
+  // TEMPORARY: BPM control hardwired to spinner.
+  const delta1 = SPIN1.consume_step_delta();
+  // TODO: debounce to make smoother, or sometthing
+  if (delta1 > 0) {
+    AudioEngine.incrementBPM(0.2)
+    status.textContent = `${AudioEngine.niceBPM} BPM`
+  }
+  if (delta1 < 0) {
+    AudioEngine.incrementBPM(-0.2)
+    status.textContent = `${AudioEngine.niceBPM} BPM`
+  }
+
+  previousInput = { left, right, up, down, a }
+}
+
 function update() {
   if (!gameStarted) {
     if (SYSTEM.ONE_PLAYER) {
-        gameStarted = true
-        document.querySelector('#start-screen').classList.add('hidden')
-        document.querySelector('#running-app').classList.remove('hidden')
-        startPlayback()
+      gameStarted = true
+      document.querySelector('#start-screen').classList.add('hidden')
+      document.querySelector('#running-app').classList.remove('hidden')
+      startPlayback()
     }
   } else {
-      // TODO: we'll have player2 later so remove these consts.
-      const left = PLAYER_1.DPAD.left
-      const right = PLAYER_1.DPAD.right
-      const up = PLAYER_1.DPAD.up
-      const down = PLAYER_1.DPAD.down
-      const a = PLAYER_1.A
-
-      if (left && !previousInput.left) {
-          cursor.x = wrapStep(cursor.x - 1)
-      }
-
-      if (right && !previousInput.right) {
-          cursor.x = wrapStep(cursor.x + 1)
-      }
-
-      if (up && !previousInput.up) {
-          // Reserved for future row navigation.
-      }
-
-      if (down && !previousInput.down) {
-          // Reserved for future row navigation.
-      }
-
-      if (a && !previousInput.a) {
-          pattern[cursor.x] ^= 1
-      }
-
-      // TEMPORARY: BPM control hardwired to spinner.
-      const delta1 = SPIN1.consume_step_delta();
-      // TODO: debounce to make smoother, or sometthing
-      if (delta1 > 0) {
-          AudioEngine.incrementBPM(0.2)
-      }
-      if (delta1 < 0) {
-          AudioEngine.incrementBPM(-0.2)
-      }
-
-      status.textContent = `${AudioEngine.niceBPM} BPM`
-      
-      previousInput = { left, right, up, down, a }
-      renderSteps()
-      
+    handleControls()
+    renderSteps()
   }
   requestAnimationFrame(update)
 }
