@@ -80,6 +80,13 @@ h1 {
   display: inline-block;
 }
 
+#error {
+  color: #f00;
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+}
+
 #step-grid {
   display: grid;
   grid-template-columns: repeat(16, 1fr);

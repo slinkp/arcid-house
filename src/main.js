@@ -296,7 +296,7 @@ AudioEngine.init()
 try {
   await AudioEngine.startAudioContext()
 } catch {
-  status.textContent = 'Audio start blocked, please restart the game'
+  document.querySelector('#error').textContent = 'Audio start blocked, please restart the game'
 }
 
 AudioEngine.onStep = (stepIndex) => {
