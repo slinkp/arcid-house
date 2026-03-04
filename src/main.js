@@ -117,8 +117,6 @@ async function startPlayback() {
   }
 }
 
-let gameStarted = false;
-
 function handleControls() {
   // TODO: we'll have player2 later so remove these consts.
   const left = PLAYER_1.DPAD.left
@@ -162,12 +160,47 @@ function handleControls() {
   previousInput = { left, right, up, down, a }
 }
 
+function buildFocusGraph() {
+  var neighbors = []
+  var rows = document.querySelectorAll('.widget-row')
+  rows.forEach(row => {
+    var widgets = row.querySelectorAll('.widget')
+    var left = null
+    var up = null
+    var down = null
+    var right = null
+    widgets.forEach(widget => {
+      if (left !== null) {
+        neighbors[left].right = widget
+      }
+      if (up !== null) {
+        neighbors[up].down = widget
+      }
+      if (down !== null) {
+        neighbors[down].up = widget
+      }
+      neighbors[widget] = {
+        left: left,
+        up: up,
+        down: down,
+        right: right,
+      }
+      left = widget
+    })
+  })
+  return neighbors
+}
+
+let gameStarted = false;
+
 function update() {
   if (!gameStarted) {
     if (SYSTEM.ONE_PLAYER) {
       gameStarted = true
       document.querySelector('#start-screen').classList.add('hidden')
       document.querySelector('#running-app').classList.remove('hidden')
+      renderSteps()
+      buildFocusGraph()
       startPlayback()
     }
   } else {
