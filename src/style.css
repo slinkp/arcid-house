@@ -95,8 +95,8 @@ h1 {
   background: #fff;
 }
 
-.step-cursor {
-  outline: 1px solid #00e5ff;
+:focus {
+  outline: 1px solid #00e5ff !important;
   outline-offset: 0;
 }
 

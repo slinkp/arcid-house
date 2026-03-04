@@ -5,7 +5,6 @@ import { PLAYER_1 as SP1 } from "@rcade/plugin-input-spinners"
 
 const STEPS = 16
 const DEFAULT_BPM = 120
-const cursor = { x: 0, y: 1 } // y:0 reserved for global controls row
 const pattern = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]
 
 const SPIN1 = SP1.SPINNER
@@ -25,6 +24,13 @@ const status = document.querySelector('#status')
 const stepGrid = document.querySelector('#step-grid')
 const debug = document.querySelector('#debug')
 const stepButtons = []
+
+let gameStarted = false
+
+let focusGraph = null
+let focusedWidget = null
+const DEFAULT_FOCUS_ID = "play-pause"
+
 
 for (let index = 0; index < STEPS; index += 1) {
   const button = document.createElement('div')
@@ -89,23 +95,16 @@ const AudioEngine = {
   },
 }
 
-function wrapStep(value) {
-  if (value < 0) return STEPS - 1
-  if (value >= STEPS) return 0
-  return value
-}
-
 function renderSteps() {
   for (let index = 0; index < STEPS; index += 1) {
     const button = stepButtons[index]
-    button.classList.remove('step-active', 'step-cursor', 'step-playing')
+    button.classList.remove('step-active', 'step-playing')
 
     if (pattern[index] === 1) button.classList.add('step-active')
-    if (index === cursor.x && cursor.y === 1) button.classList.add('step-cursor')
     if (index === playingStep) button.classList.add('step-playing')
   }
 
-  debug.textContent = `x:${cursor.x} y:${cursor.y} step:${playingStep >= 0 ? playingStep : '-'}`
+  debug.textContent = `step:${playingStep >= 0 ? playingStep : '-'}`
 }
 
 async function startPlayback() {
@@ -124,25 +123,36 @@ function handleControls() {
   const up = PLAYER_1.DPAD.up
   const down = PLAYER_1.DPAD.down
   const a = PLAYER_1.A
+  let newFocusedWidget = null
 
+  // Left/right movement within the focused row
   if (left && !previousInput.left) {
-    cursor.x = wrapStep(cursor.x - 1)
+    newFocusedWidget = focusGraph.get(focusedWidget)?.left
+  }
+  else if (right && !previousInput.right) {
+    newFocusedWidget = focusGraph.get(focusedWidget)?.right
+  }
+  else if (up && !previousInput.up) {
+    newFocusedWidget = focusGraph.get(focusedWidget)?.up
+  }
+  else if (down && !previousInput.down) {
+    newFocusedWidget = focusGraph.get(focusedWidget)?.down
   }
 
-  if (right && !previousInput.right) {
-    cursor.x = wrapStep(cursor.x + 1)
-  }
-
-  if (up && !previousInput.up) {
-    // Reserved for future row navigation.
-  }
-
-  if (down && !previousInput.down) {
-    // Reserved for future row navigation.
+  if (newFocusedWidget !== null) {
+    // TODO some redundant classes here
+    focusedWidget.blur()
+    newFocusedWidget.focus()
+    focusedWidget = newFocusedWidget
   }
 
   if (a && !previousInput.a) {
-    pattern[cursor.x] ^= 1
+    if (focusedWidget.classList.contains('step')) {
+      var foo = "TBD"
+      pattern[foo] ^= 1
+    } else {
+      // TODO: handle other actionable widget types
+    }
   }
 
   // TEMPORARY: BPM control hardwired to spinner.
@@ -160,10 +170,16 @@ function handleControls() {
   previousInput = { left, right, up, down, a }
 }
 
+
 function buildFocusGraph() {
+  // TODO: handle two-player focus where there's two different focused elements at once!
   const neighbors = new Map()
   const rows = document.querySelectorAll('.widget-row')
   let prev_row_widgets = null
+  if (focusedWidget === null) {
+    focusedWidget = document.querySelector(`#${DEFAULT_FOCUS_ID}`)
+    focusedWidget.focus()
+  }
   rows.forEach(row => {
     const widgets = row.querySelectorAll('.widget')
     let left = null
@@ -222,9 +238,6 @@ function buildFocusGraph() {
   return neighbors
 }
 
-let gameStarted = false;
-
-let focusGraph = null
 
 function update() {
   if (!gameStarted) {
