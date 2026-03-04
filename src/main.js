@@ -161,37 +161,70 @@ function handleControls() {
 }
 
 function buildFocusGraph() {
-  var neighbors = []
-  var rows = document.querySelectorAll('.widget-row')
+  const neighbors = new Map()
+  const rows = document.querySelectorAll('.widget-row')
+  let prev_row_widgets = null
   rows.forEach(row => {
-    var widgets = row.querySelectorAll('.widget')
-    var left = null
-    var up = null
-    var down = null
-    var right = null
-    widgets.forEach(widget => {
+    const widgets = row.querySelectorAll('.widget')
+    let left = null
+    let up = null
+    let down = null
+    let right = null
+    for (const widget of widgets) {
+      const rect = widget.getBoundingClientRect()
+      const center_x = rect.left + rect.width / 2
       if (left !== null) {
-        neighbors[left].right = widget
+        neighbors.get(left).right = widget
       }
-      if (up !== null) {
-        neighbors[up].down = widget
+
+      if (prev_row_widgets !== null) {
+        // Sort prev_row widgets by absolute distance of their center_x from the center_x of the current widget
+        prev_row_widgets.sort((a, b) => {
+          const dist_a = Math.abs((a.getBoundingClientRect().left + a.getBoundingClientRect().width / 2) - center_x)
+          const dist_b = Math.abs((b.getBoundingClientRect().left + b.getBoundingClientRect().width / 2) - center_x)
+          return dist_a - dist_b
+        })
+        // And pick the nearest one
+        up = prev_row_widgets[0]
       }
-      if (down !== null) {
-        neighbors[down].up = widget
-      }
-      neighbors[widget] = {
+      neighbors.set(widget, {
         left: left,
         up: up,
         down: down,
         right: right,
-      }
+        center_x: center_x,
+      })
       left = widget
-    })
+    }
+
+    // Add down neighbors of previous row.
+    // Note that going down then up doesn't necessarily put you back where you started,
+    // and vice versa.
+    if (prev_row_widgets !== null) {
+      const sortable_widgets = Array.from(widgets)
+      for (const prev_row_widget of prev_row_widgets) {
+        sortable_widgets.sort((a, b) => {
+          const center_x = neighbors.get(prev_row_widget).center_x
+          const dist_a = Math.abs((a.getBoundingClientRect().left + a.getBoundingClientRect().width / 2) - center_x)
+          const dist_b = Math.abs((b.getBoundingClientRect().left + b.getBoundingClientRect().width / 2) - center_x)
+          return dist_a - dist_b
+        })
+        neighbors.get(prev_row_widget).down = sortable_widgets[0]
+      }
+    }
+    // Wrap around in both horizontal directions
+    const first = widgets[0]
+    const last = widgets[widgets.length - 1]
+    neighbors.get(last).right = first
+    neighbors.get(first).left = last
+    prev_row_widgets = Array.from(widgets)
   })
   return neighbors
 }
 
 let gameStarted = false;
+
+let focusGraph = null
 
 function update() {
   if (!gameStarted) {
@@ -200,7 +233,7 @@ function update() {
       document.querySelector('#start-screen').classList.add('hidden')
       document.querySelector('#running-app').classList.remove('hidden')
       renderSteps()
-      buildFocusGraph()
+      focusGraph = buildFocusGraph()
       startPlayback()
     }
   } else {
