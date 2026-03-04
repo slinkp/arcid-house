@@ -93,6 +93,10 @@ const AudioEngine = {
     if (sampleName !== 'kick' || !this.kick) return
     this.kick.triggerAttackRelease('C1', '8n', time, velocity)
   },
+
+  isPlaying() {
+    return Tone.Transport.state === 'started'
+  },
 }
 
 function renderSteps() {
@@ -107,13 +111,15 @@ function renderSteps() {
   debug.textContent = `step:${playingStep >= 0 ? playingStep : '-'}`
 }
 
-async function startPlayback() {
-  try {
-    await AudioEngine.startAudioContext()
-    AudioEngine.play()
-  } catch {
-    status.textContent = 'Audio start blocked, try again'
-  }
+function startPlayback() {
+  if (AudioEngine.isPlaying()) return
+  AudioEngine.play()
+  document.querySelector('#play-pause').classList.add('playing')
+}
+
+function stopPlayback() {
+  AudioEngine.stop()
+  document.querySelector('#play-pause').classList.remove('playing')
 }
 
 function handleControls() {
@@ -152,6 +158,12 @@ function handleControls() {
     if (focusedWidget.classList.contains('step')) {
       const beat = focusedWidget.dataset.stepIndex
       pattern[beat] ^= 1
+    } else if (focusedWidget.id == 'play-pause') {
+      if (AudioEngine.isPlaying()) {
+        stopPlayback()
+      } else {
+        startPlayback()
+      }
     } else {
       // TODO: handle other actionable widget types
     }
@@ -264,10 +276,21 @@ function update() {
   requestAnimationFrame(update)
 }
 
+
+/************************************************************************
+Global initialization
+********************************/
+
 AudioEngine.init()
+try {
+  await AudioEngine.startAudioContext()
+} catch {
+  status.textContent = 'Audio start blocked, please restart the game'
+}
+
 AudioEngine.onStep = (stepIndex) => {
   playingStep = stepIndex
-  renderSteps()
+  renderSteps() // need to update immediately to show the active step ... or not? game loop suffices?
 }
 
 update()
