@@ -50,7 +50,8 @@ const AudioEngine = {
     this.sequence = new Tone.Sequence((time, stepIndex) => {
       if (this.onStep) this.onStep(stepIndex)
       if (pattern[stepIndex] === 1) {
-        this.triggerDrum('kick', time, 0.9)
+        const level = 0.9
+        this.triggerDrum('kick', time, level)
       }
     }, [...Array(STEPS).keys()], '16n')
 
