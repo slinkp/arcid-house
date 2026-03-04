@@ -108,7 +108,7 @@ function renderSteps() {
     if (index === playingStep) button.classList.add('step-playing')
   }
 
-  debug.textContent = `step:${playingStep >= 0 ? playingStep : '-'}`
+  debug.textContent = `step: ${playingStep >= 0 ? playingStep : '-'}, focus: ${focusedWidget?.id}`
 }
 
 function startPlayback() {
