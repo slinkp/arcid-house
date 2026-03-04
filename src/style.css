@@ -74,9 +74,10 @@ h1 {
   color: #eee;
   font-size: 10px;
   font-weight: 700;
-  width: 44px;
+  width: 54px;
   text-align: right;
   padding: 2px 4px;
+  display: inline-block;
 }
 
 #step-grid {

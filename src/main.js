@@ -180,7 +180,7 @@ function handleControls() {
       if (delta1 < 0) {
         AudioEngine.incrementBPM(-0.2)
       }
-      focusedWidget.value = AudioEngine.bpm.toFixed(1).toString()
+      showBPM()
     }
     else {
       // TODO: handle other spinnable widgets
@@ -188,6 +188,10 @@ function handleControls() {
   }
 
   previousInput = { left, right, up, down, a }
+}
+
+function showBPM() {
+  document.querySelector('#bpm').textContent = AudioEngine.bpm.toFixed(1).toString()
 }
 
 
@@ -261,6 +265,7 @@ function buildFocusGraph() {
 function startGame() {
   if (!gameStarted) {
       gameStarted = true
+      showBPM()
       document.querySelector('#start-screen').classList.add('hidden')
       document.querySelector('#running-app').classList.remove('hidden')
       renderSteps()
@@ -273,11 +278,11 @@ function startGame() {
  ***************************************************************************************/
 
 function update() {
-  if (!gameStarted && SYSTEM.ONE_PLAYER) {
-    startGame()
-  } else {
+  if (gameStarted) {
     handleControls()
     renderSteps()
+  } else if (SYSTEM.ONE_PLAYER) {
+    startGame()
   }
   requestAnimationFrame(update)
 }
