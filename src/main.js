@@ -28,7 +28,8 @@ const stepButtons = []
 
 for (let index = 0; index < STEPS; index += 1) {
   const button = document.createElement('div')
-  button.className = 'step'
+  button.classList.add('step')
+  button.classList.add('widget')
   stepGrid.appendChild(button)
   stepButtons.push(button)
 }
