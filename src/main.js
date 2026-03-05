@@ -28,7 +28,8 @@ const stepButtons = []
 let gameStarted = false
 
 let focusGraph = null
-let focusedWidget = null
+let focusedWidgetForPlayer = {1: null, 2: null};
+
 const DEFAULT_FOCUS_ID = "play-pause"
 
 
@@ -108,6 +109,7 @@ function renderSteps() {
     if (index === playingStep) button.classList.add('step-playing')
   }
 
+  const focusedWidget = focusedWidgetForPlayer[1];
   debug.textContent = `step: ${playingStep >= 0 ? playingStep : '-'}, focus: ${focusedWidget?.id}`
 }
 
@@ -122,7 +124,7 @@ function stopPlayback() {
   document.querySelector('#play-pause').classList.remove('playing')
 }
 
-function handleControls() {
+function handleControls(player = 1) {
   // TODO: refactor to be more modular and just forward to handlers for each widget type.
 
   // TODO: we'll have player2 later so remove these consts.
@@ -132,6 +134,7 @@ function handleControls() {
   const down = PLAYER_1.DPAD.down
   const a = PLAYER_1.A
   let newFocusedWidget = null
+  const focusedWidget = focusedWidgetForPlayer[player]
 
   // Left/right movement within the focused row
   if (left && !previousInput.left) {
@@ -149,9 +152,7 @@ function handleControls() {
 
   if (newFocusedWidget !== null) {
     // TODO some redundant classes here
-    focusedWidget.blur()
-    newFocusedWidget.focus()
-    focusedWidget = newFocusedWidget
+    focus(newFocusedWidget, 1) // player 1 for now
   }
 
   if (a && !previousInput.a) {
@@ -194,15 +195,23 @@ function showBPM() {
   document.querySelector('#bpm').textContent = AudioEngine.bpm.toFixed(1).toString()
 }
 
+function focus(widget, playerNumber = 1) {
+  const cls = `focus-p${playerNumber}`
+  widget.classList.add(cls)
+  focusedWidgetForPlayer[playerNumber]?.classList.remove(cls)
+  focusedWidgetForPlayer[playerNumber] = widget
+}
 
 function buildFocusGraph() {
   // TODO: handle two-player focus where there's two different focused elements at once!
   const neighbors = new Map()
   const rows = document.querySelectorAll('.widget-row')
+  const player = 1
   let prev_row_widgets = null
+  let focusedWidget = focusedWidgetForPlayer[player]
   if (focusedWidget === null) {
     focusedWidget = document.querySelector(`#${DEFAULT_FOCUS_ID}`)
-    focusedWidget.focus()
+    focus(focusedWidget)
   }
   rows.forEach(row => {
     const widgets = row.querySelectorAll('.widget')

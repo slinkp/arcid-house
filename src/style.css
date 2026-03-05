@@ -106,7 +106,7 @@ h1 {
   background: #fff;
 }
 
-:focus {
+.focus-p1, .focus-p2 {
   outline: 1px solid #00e5ff !important;
   outline-offset: 0;
 }
