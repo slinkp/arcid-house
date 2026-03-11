@@ -18,10 +18,8 @@ let previousInput = {
   a: false,
 }
 
-const app = document.querySelector('#app')
-
 const status = document.querySelector('#status')
-const stepGrid = document.querySelector('#step-grid')
+const drumGrid = document.querySelector('#drum-grid')
 const debug = document.querySelector('#debug')
 const stepButtons = []
 
@@ -32,17 +30,24 @@ let focusedWidgetForPlayer = {1: null, 2: null};
 
 const DEFAULT_FOCUS_ID = "play-pause"
 
+const DRUM_ROWS = 1;
 
-for (let index = 0; index < STEPS; index += 1) {
-  const button = document.createElement('div')
-  button.setAttribute('tabindex', -1) // make focusable but not via tab-key
-  button.classList.add('step')
-  button.classList.add('widget')
-  button.dataset.stepIndex = index // for mapping to pattern array
-  stepGrid.appendChild(button)
-  stepButtons.push(button)
+for (let row = 0; row < DRUM_ROWS; row += 1) {
+    const drumLabel = document.createElement('span')
+    drumLabel.classList.add('track-label')
+    drumLabel.innerHTML = 'BD'  // TODO de-hardcode
+    drumGrid.appendChild(drumLabel)
+    for (let index = 0; index < STEPS; index += 1) {
+        const button = document.createElement('div')
+        button.setAttribute('tabindex', -1) // make focusable by our class system, but not via tab-key
+        button.classList.add('step')
+        button.classList.add('widget')
+        // TODO we need to indicate an instrument too
+        button.dataset.stepIndex = index // for mapping to pattern array
+        drumGrid.appendChild(button)
+        stepButtons.push(button)
+    }
 }
-
 const AudioEngine = {
   initialized: false,
   started: false,

@@ -8,8 +8,6 @@
 </head>
 
 <body>
-  <div id="app">
-
   <div id="start-screen">
     <h1>aRCid house</h1>
 
@@ -35,17 +33,23 @@
   </div>
 
   <div id="running-app" class="hidden">
-    <h2>drums</h2>
+
     <div id="global-controls" class="widget-row">
       <button id="play-pause" class="widget" tabindex="-1">&#9654;</button>
       <label id="bpm-control">
         BPM <span id="bpm" class="widget" tabindex="-1">120.0</span>
       </label>
+      <div>Debug: <span id="debug">x:0 y:1 step:-</span></div>
+      <div id="error"></div>
     </div>
-    <div id="step-grid" class="widget-row"></div>
-    <p>Debug: <span id="debug">x:0 y:1 step:-</span></p>
-    <p id="error"></p>
-  </div>
+
+    <div id="bass-grid">
+      <div id="bass-placeholder">bass sequencer (todo)</div>
+    </div>
+
+    <div id="drum-grid">
+      <!-- drum rows & cols inserted programatically -->
+    </div>
 
   </div>
   <script type="module" src="/src/main.js"></script>
