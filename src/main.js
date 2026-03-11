@@ -20,7 +20,7 @@ let previousInput = {
 
 const status = document.querySelector('#status')
 const drumGrid = document.querySelector('#drum-grid')
-const debug = document.querySelector('#debug')
+const debug = document.querySelector('#debug span')
 const stepButtons = []
 
 let gameStarted = false
@@ -114,7 +114,7 @@ function renderSteps() {
     if (index === playingStep) button.classList.add('step-playing')
   }
 
-  const focusedWidget = focusedWidgetForPlayer[1];
+  const focusedWidget = focusedWidgetForPlayer[1]
   debug.textContent = `step: ${playingStep >= 0 ? playingStep : '-'}, focus: ${focusedWidget?.id}`
 }
 
