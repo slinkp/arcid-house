@@ -1,6 +1,6 @@
 import './style.css'
 import * as Tone from 'tone'
-import { PLAYER_1, SYSTEM } from '@rcade/plugin-input-classic'
+import { PLAYER_1, PLAYER_2, SYSTEM } from '@rcade/plugin-input-classic'
 import { PLAYER_1 as SP1 } from "@rcade/plugin-input-spinners"
 
 const STEPS = 16
@@ -11,11 +11,20 @@ const SPIN1 = SP1.SPINNER
 
 let playingStep = -1
 let previousInput = {
-  left: false,
-  right: false,
-  up: false,
-  down: false,
-  a: false,
+    1: {
+        left: false,
+        right: false,
+        up: false,
+        down: false,
+        a: false,
+    },
+    2: {
+        left: false,
+        right: false,
+        up: false,
+        down: false,
+        a: false,
+    }        
 }
 
 const status = document.querySelector('#status')
@@ -23,8 +32,6 @@ const drumGrid = document.querySelector('#drum-grid')
 const debug = document.querySelector('#debug span')
 
 let gameStarted = false
-
-let focusGraph = null
 
 let focusedWidgetForPlayer = { 1: null, 2: null }
 
@@ -139,27 +146,39 @@ function stopPlayback() {
 function handleControls(player = 1) {
   // TODO: refactor to be more modular and just forward to handlers for each widget type.
 
-  // TODO: we'll have player2 later so remove these consts.
-  const left = PLAYER_1.DPAD.left
-  const right = PLAYER_1.DPAD.right
-  const up = PLAYER_1.DPAD.up
-  const down = PLAYER_1.DPAD.down
-  const a = PLAYER_1.A
+  let left = null;
+  let right = null;
+  let up = null;
+  let down = null;
+  let a = null;
+  if (player == 1) {
+    left = PLAYER_1.DPAD.left
+    right = PLAYER_1.DPAD.right
+    up = PLAYER_1.DPAD.up
+    down = PLAYER_1.DPAD.down
+    a = PLAYER_1.A
+  } else {
+    left = PLAYER_2.DPAD.left
+    right = PLAYER_2.DPAD.right
+    up = PLAYER_2.DPAD.up
+    down = PLAYER_2.DPAD.down
+    a = PLAYER_2.A
+  }
   let newFocusedWidget = null
   const focusedWidget = focusedWidgetForPlayer[player]
 
   // Left/right movement within the focused row
-  if (left && !previousInput.left) {
-    newFocusedWidget = focusGraph.get(focusedWidget)?.left
+  if (left && !previousInput[player].left) {
+    newFocusedWidget = findNeighbor(focusedWidget, LEFT, player)
   }
-  else if (right && !previousInput.right) {
-    newFocusedWidget = focusGraph.get(focusedWidget)?.right
+  else if (right && !previousInput[player].right) {
+    newFocusedWidget = findNeighbor(focusedWidget, RIGHT, player)
   }
-  else if (up && !previousInput.up) {
-    newFocusedWidget = focusGraph.get(focusedWidget)?.up
+  else if (up && !previousInput[player].up) {
+    newFocusedWidget = findNeighbor(focusedWidget, UP, player)
   }
-  else if (down && !previousInput.down) {
-    newFocusedWidget = focusGraph.get(focusedWidget)?.down
+  else if (down && !previousInput[player].down) {
+    newFocusedWidget = findNeighbor(focusedWidget, DOWN, player)
   }
 
   if (newFocusedWidget !== null) {
@@ -167,8 +186,8 @@ function handleControls(player = 1) {
     focus(newFocusedWidget, 1) // player 1 for now
   }
 
-  if (a && !previousInput.a) {
-    if (focusedWidget.classList.contains('step')) {
+  if (a && !previousInput[player].a) {
+    if (focusedWidget?.classList.contains('step')) {
       const beat = focusedWidget.dataset.stepIndex
       pattern[beat] ^= 1
     } else if (focusedWidget.id == 'play-pause') {
@@ -200,7 +219,7 @@ function handleControls(player = 1) {
     }
   }
 
-  previousInput = { left, right, up, down, a }
+  previousInput[player] = { left, right, up, down, a }
 }
 
 /**********************************************************************
@@ -223,73 +242,77 @@ function focus(widget, playerNumber = 1) {
  ONSCREEN NAVIGATION HANDLING
 **********************************************************************/
 
-function buildFocusGraph() {
-  // TODO: handle two-player focus where there's two different focused elements at once!
-  const neighbors = new Map()
-  const rows = document.querySelectorAll('.widget-row')
-  const player = 1
-  let prev_row_widgets = null
-  let focusedWidget = focusedWidgetForPlayer[player]
-  if (focusedWidget === null) {
-    focusedWidget = document.querySelector(`#${DEFAULT_FOCUS_ID}`)
-    focus(focusedWidget)
-  }
-  rows.forEach(row => {
-    const widgets = row.querySelectorAll('.widget')
-    let left = null
-    let up = null
-    let down = null
-    let right = null
-    for (const widget of widgets) {
-      const rect = widget.getBoundingClientRect()
-      const center_x = rect.left + rect.width / 2
-      if (left !== null) {
-        neighbors.get(left).right = widget
-      }
+const DRUM_AREA = 'drum'
+const BASS_AREA = 'bass'
+const GLOBAL_AREA = 'global'
 
-      if (prev_row_widgets !== null) {
-        // Sort prev_row widgets by absolute distance of their center_x from the center_x of the current widget
-        prev_row_widgets.sort((a, b) => {
-          const dist_a = Math.abs((a.getBoundingClientRect().left + a.getBoundingClientRect().width / 2) - center_x)
-          const dist_b = Math.abs((b.getBoundingClientRect().left + b.getBoundingClientRect().width / 2) - center_x)
-          return dist_a - dist_b
-        })
-        // And pick the nearest one
-        up = prev_row_widgets[0]
-      }
-      neighbors.set(widget, {
-        left: left,
-        up: up,
-        down: down,
-        right: right,
-        center_x: center_x,
-      })
-      left = widget
+const ALLOWED_PLAYER_AREA = { 1: BASS_AREA, 2: DRUM_AREA }
+
+// TODO two-player
+const LEFT = 'left'
+const RIGHT = 'right'
+const UP = 'up'
+const DOWN = 'down'
+
+
+// So going global → area → global → area lands you where you were, not on row 1 col 1.
+const lastFocusByPlayerAndArea = {
+    1: { GLOBAL_AREA: null, BASS_AREA: null },
+    2: { GLOBAL_AREA: null, DRUM_AREA: null }
+}
+
+function findNeighbor(currentWidget, direction, player) {
+    const area = currentWidget.dataset.area
+    const row = parseInt(currentWidget.dataset.row)
+    // FOr now we assume all widgets occupy exactly 1 column.
+    // If that changes, we can specify how many columns we span,
+    // and from that calculate the end and center as needed.
+    const col = parseInt(currentWidget.dataset.gridCol)
+    let playerArea = null
+
+    // --- CROSS-AREA BOUNDARY CASES ---
+    if (area == GLOBAL_AREA && direction == DOWN) {
+        playerArea = ALLOWED_PLAYER_AREA[player]
+        return lastFocusByPlayerAndArea[player][playerArea] ?? firstWidget(playerArea)
+    }
+    if (area != GLOBAL_AREA && direction == UP && row == 0) {
+        // Rise to global controls, remembering where we were
+        lastFocusByPlayerAndArea[player][area] = currentWidget
+        return lastFocusByPlayerAndArea[player]['global'] ?? firstWidget('global')
+    }
+    // --- WITHIN-AREA NAVIGATION ---
+    const widgets = Array.from(document.querySelector(".widget"))
+    // Only consider widgets in the same area (enforces player boundary)
+    let candidates = widgets.filter(w => w.dataset.area === playerArea)
+    if (direction === LEFT || direction === RIGHT){
+        candidates = candidates.filter(w => w.dataset.row === row)
+        candidates.sort((a, b) => a.col - b.col)
+    } else {
+        candidates = candidates.filter(w => w.dataset.col === col)
+        candidates.sort((a, b) => a.row - b.row)
     }
 
-    // Add down neighbors of previous row.
-    // Note that going down then up doesn't necessarily put you back where you started,
-    // and vice versa.
-    if (prev_row_widgets !== null) {
-      const sortable_widgets = Array.from(widgets)
-      for (const prev_row_widget of prev_row_widgets) {
-        sortable_widgets.sort((a, b) => {
-          const center_x = neighbors.get(prev_row_widget).center_x
-          const dist_a = Math.abs((a.getBoundingClientRect().left + a.getBoundingClientRect().width / 2) - center_x)
-          const dist_b = Math.abs((b.getBoundingClientRect().left + b.getBoundingClientRect().width / 2) - center_x)
-          return dist_a - dist_b
-        })
-        neighbors.get(prev_row_widget).down = sortable_widgets[0]
-      }
+    let w = null
+    if (direction == LEFT) {
+        candidates.reverse()
+        for (w of candidates) {
+            if (w.col < currentWidget.col) return w
+        }
+    } else if (direction == RIGHT) {
+        for (w of candidates) {
+            if (w.col > currentWidget.col) return w
+        }
+    } else if (direction == UP) {
+        candidates.reverse()
+        for (w of candidates) {
+            if (w.row < currentWidget.row) return w
+        }
+    } else if (direction == DOWN) {
+        for (w of candidates) {
+            if (w.row > currentWidget.row) return w
+        }
     }
-    // Wrap around in both horizontal directions
-    const first = widgets[0]
-    const last = widgets[widgets.length - 1]
-    neighbors.get(last).right = first
-    neighbors.get(first).left = last
-    prev_row_widgets = Array.from(widgets)
-  })
-  return neighbors
+    return null
 }
 
 
@@ -322,7 +345,7 @@ function update() {
   if (gameStarted) {
     handleControls()
     renderSteps()
-  } else if (SYSTEM.ONE_PLAYER) {
+  } else if (SYSTEM.ONE_PLAYER || SYSTEM.TWO_PLAYER) {
     startGame()
   }
   requestAnimationFrame(update)
@@ -335,7 +358,6 @@ function startGame() {
       document.querySelector('#start-screen').classList.add('hidden')
       document.querySelector('#running-app').classList.remove('hidden')
       renderSteps()
-      focusGraph = buildFocusGraph()
    }
 }
 
