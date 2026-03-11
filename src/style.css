@@ -121,6 +121,10 @@ html, body {
   margin-left: 1px;
 }
 
+#play-pause.playing {
+  color: #0F0;
+}
+
 #bpm-control {
   display: flex;
   align-items: center;
@@ -154,11 +158,6 @@ html, body {
   background: #fff;
 }
 
-.focus-p1, .focus-p2 {
-  outline: 1px solid #00e5ff !important;
-  outline-offset: 0;
-}
-
 .step-playing {
   border-color: #ff2b2b;
 }
@@ -167,11 +166,12 @@ html, body {
   background: #ff9020;
 }
 
-
-#play-pause {
-  color: #eee;
+.focus-p1 {
+  outline: 1px solid #00e5ff !important;
+  outline-offset: 0;
 }
 
-#play-pause.playing {
-  color: #0F0;
+.focus-p2 {
+  outline: 1px solid #ff2b2b !important;
+  outline-offset: 0;
 }
