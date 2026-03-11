@@ -26,9 +26,10 @@ const stepButtons = []
 let gameStarted = false
 
 let focusGraph = null
-let focusedWidgetForPlayer = {1: null, 2: null};
 
-const DEFAULT_FOCUS_ID = "play-pause"
+let focusedWidgetForPlayer = { 1: null, 2: null }
+
+const DEFAULT_FOCUS_ID = 'play-pause'
 
 const DRUM_ROWS = 1;
 
