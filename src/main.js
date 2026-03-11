@@ -30,6 +30,11 @@ let focusedWidgetForPlayer = { 1: null, 2: null }
 
 const DEFAULT_FOCUS_ID = 'play-pause'
 
+
+/**********************************************************************
+ Build drum grid
+ **********************************************************************/
+
 const DRUM_ROW_LABELS = ['SD', 'BD'];
 const stepButtons = []
 
@@ -52,6 +57,11 @@ for (let row = 0; row < DRUM_ROW_LABELS.length; row += 1) {
         stepButtons[row].push(button)
     }
 }
+
+/**********************************************************************
+ AUDIO SETUP
+ **********************************************************************/
+
 
 const AudioEngine = {
   initialized: false,
@@ -110,23 +120,6 @@ const AudioEngine = {
   },
 }
 
-function renderStepRow(row) {
-  for (let index = 0; index < STEPS; index += 1) {
-    const button = row[index]
-    button.classList.remove('step-active', 'step-playing')
-    if (pattern[index] === 1) button.classList.add('step-active')
-    if (index === playingStep) button.classList.add('step-playing')
-  }
-  const focusedWidget = focusedWidgetForPlayer[1]
-  debug.textContent = `step: ${playingStep >= 0 ? playingStep : '-'}, focus: ${focusedWidget?.id}`
-}
-
-
-function renderSteps() {
-    for (const row of stepButtons) renderStepRow(row);
-}
-
-
 function startPlayback() {
   if (AudioEngine.isPlaying()) return
   AudioEngine.play()
@@ -137,6 +130,11 @@ function stopPlayback() {
   AudioEngine.stop()
   document.querySelector('#play-pause').classList.remove('playing')
 }
+
+
+/**********************************************************************
+ USER INPUT
+ **********************************************************************/
 
 function handleControls(player = 1) {
   // TODO: refactor to be more modular and just forward to handlers for each widget type.
@@ -205,6 +203,10 @@ function handleControls(player = 1) {
   previousInput = { left, right, up, down, a }
 }
 
+/**********************************************************************
+ USER FEEDBACK
+**********************************************************************/
+
 function showBPM() {
   document.querySelector('#bpm').textContent = AudioEngine.bpm.toFixed(1).toString()
 }
@@ -215,6 +217,11 @@ function focus(widget, playerNumber = 1) {
   focusedWidgetForPlayer[playerNumber]?.classList.remove(cls)
   focusedWidgetForPlayer[playerNumber] = widget
 }
+
+
+/**********************************************************************
+ ONSCREEN NAVIGATION HANDLING
+**********************************************************************/
 
 function buildFocusGraph() {
   // TODO: handle two-player focus where there's two different focused elements at once!
@@ -285,16 +292,27 @@ function buildFocusGraph() {
   return neighbors
 }
 
-function startGame() {
-  if (!gameStarted) {
-      gameStarted = true
-      showBPM()
-      document.querySelector('#start-screen').classList.add('hidden')
-      document.querySelector('#running-app').classList.remove('hidden')
-      renderSteps()
-      focusGraph = buildFocusGraph()
-   }
+
+/**********************************************************************
+ SEQUENCER GRID UX SETUP
+ **********************************************************************/
+
+function renderStepRow(row) {
+  for (let index = 0; index < STEPS; index += 1) {
+    const button = row[index]
+    button.classList.remove('step-active', 'step-playing')
+    if (pattern[index] === 1) button.classList.add('step-active')
+    if (index === playingStep) button.classList.add('step-playing')
+  }
+  const focusedWidget = focusedWidgetForPlayer[1]
+  debug.textContent = `step: ${playingStep >= 0 ? playingStep : '-'}, focus: ${focusedWidget?.id}`
 }
+
+
+function renderSteps() {
+    for (const row of stepButtons) renderStepRow(row);
+}
+
 
 /**************************************************************************************** 
  * MAIN GAME LOOP
@@ -310,10 +328,21 @@ function update() {
   requestAnimationFrame(update)
 }
 
+function startGame() {
+  if (!gameStarted) {
+      gameStarted = true
+      showBPM()
+      document.querySelector('#start-screen').classList.add('hidden')
+      document.querySelector('#running-app').classList.remove('hidden')
+      renderSteps()
+      focusGraph = buildFocusGraph()
+   }
+}
+
 
 /************************************************************************
-Global initialization
-********************************/
+ Global initialization on load
+*************************************************************************/
 
 AudioEngine.init()
 try {
