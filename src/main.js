@@ -21,7 +21,6 @@ let previousInput = {
 const status = document.querySelector('#status')
 const drumGrid = document.querySelector('#drum-grid')
 const debug = document.querySelector('#debug span')
-const stepButtons = []
 
 let gameStarted = false
 
@@ -31,13 +30,17 @@ let focusedWidgetForPlayer = { 1: null, 2: null }
 
 const DEFAULT_FOCUS_ID = 'play-pause'
 
-const DRUM_ROWS = 1;
+const DRUM_ROW_LABELS = ['SD', 'BD'];
+const stepButtons = []
 
-for (let row = 0; row < DRUM_ROWS; row += 1) {
+for (let row = 0; row < DRUM_ROW_LABELS.length; row += 1) {
+    stepButtons.push([])
     const drumLabel = document.createElement('span')
     drumLabel.classList.add('track-label')
-    drumLabel.innerHTML = 'BD'  // TODO de-hardcode
+    drumLabel.textContent = DRUM_ROW_LABELS[row]
+    drumLabel.dataset.row = row
     drumGrid.appendChild(drumLabel)
+    // Now the buttons for this row's pattern
     for (let index = 0; index < STEPS; index += 1) {
         const button = document.createElement('div')
         button.setAttribute('tabindex', -1) // make focusable by our class system, but not via tab-key
@@ -46,9 +49,10 @@ for (let row = 0; row < DRUM_ROWS; row += 1) {
         // TODO we need to indicate an instrument too
         button.dataset.stepIndex = index // for mapping to pattern array
         drumGrid.appendChild(button)
-        stepButtons.push(button)
+        stepButtons[row].push(button)
     }
 }
+
 const AudioEngine = {
   initialized: false,
   started: false,
@@ -106,18 +110,22 @@ const AudioEngine = {
   },
 }
 
-function renderSteps() {
+function renderStepRow(row) {
   for (let index = 0; index < STEPS; index += 1) {
-    const button = stepButtons[index]
+    const button = row[index]
     button.classList.remove('step-active', 'step-playing')
-
     if (pattern[index] === 1) button.classList.add('step-active')
     if (index === playingStep) button.classList.add('step-playing')
   }
-
   const focusedWidget = focusedWidgetForPlayer[1]
   debug.textContent = `step: ${playingStep >= 0 ? playingStep : '-'}, focus: ${focusedWidget?.id}`
 }
+
+
+function renderSteps() {
+    for (const row of stepButtons) renderStepRow(row);
+}
+
 
 function startPlayback() {
   if (AudioEngine.isPlaying()) return
