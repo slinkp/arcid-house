@@ -30,12 +30,11 @@ let previousInput = {
 const status = document.querySelector('#status')
 const drumGrid = document.querySelector('#drum-grid')
 const debug = document.querySelector('#debug span')
-
+const playButton = document.querySelector('#play-pause')
+const bpmControl = document.querySelector('#bpm')
 let gameStarted = false
 
-let focusedWidgetForPlayer = { 1: null, 2: null }
-
-const DEFAULT_FOCUS_ID = 'play-pause'
+const focusedWidgetForPlayer = { 1: null, 2: null }
 
 
 /**********************************************************************
@@ -190,7 +189,7 @@ function handleControls(player = 1) {
     if (focusedWidget?.classList.contains('step')) {
       const beat = focusedWidget.dataset.stepIndex
       pattern[beat] ^= 1
-    } else if (focusedWidget.id == 'play-pause') {
+    } else if (focusedWidget === playButton) {
       if (AudioEngine.isPlaying()) {
         stopPlayback()
       } else {
@@ -203,7 +202,7 @@ function handleControls(player = 1) {
 
   const delta1 = SPIN1.consume_step_delta();
   if (delta1 !== 0) {
-    if (focusedWidget.id == 'bpm') {
+    if (focusedWidget.id === 'bpm') {
       // TODO: make this smoother? hardwiring 0.2 is a hack to make it usable in browser, 
       // but it limits speed on spinner hardware
       if (delta1 > 0) {
@@ -262,6 +261,8 @@ const lastFocusByPlayerAndArea = {
 }
 
 function findNeighbor(currentWidget, direction, player) {
+    if (currentWidget === null) return null;
+
     const area = currentWidget.dataset.area
     const row = parseInt(currentWidget.dataset.row)
     // FOr now we assume all widgets occupy exactly 1 column.
@@ -358,6 +359,8 @@ function startGame() {
       document.querySelector('#start-screen').classList.add('hidden')
       document.querySelector('#running-app').classList.remove('hidden')
       renderSteps()
+      focus(playButton, 1)
+      focus(bpmControl, 2)
    }
 }
 

@@ -125,7 +125,7 @@ html, body {
   color: #0F0;
 }
 
-#bpm-control {
+#bpm-label {
   display: flex;
   align-items: center;
   gap: 3px;
