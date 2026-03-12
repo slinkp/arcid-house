@@ -181,7 +181,7 @@ function handleControls(player = 1) {
   }
 
   if (newFocusedWidget !== null) {
-    // TODO some redundant classes here
+    console.log(`New widget ${up} ${right} ${down} ${left} is ${newFocusedWidget}`)
     focus(newFocusedWidget, 1) // player 1 for now
   }
 
@@ -261,15 +261,18 @@ const lastFocusByPlayerAndArea = {
 }
 
 function findNeighbor(currentWidget, direction, player) {
+    console.log(`findNeighbor for ${direction} and player ${player} at ${currentWidget.id}`)
     if (currentWidget === null) return null;
 
     const area = currentWidget.dataset.area
-    const row = parseInt(currentWidget.dataset.row)
+    const row = currentWidget.dataset.row
     // FOr now we assume all widgets occupy exactly 1 column.
     // If that changes, we can specify how many columns we span,
     // and from that calculate the end and center as needed.
-    const col = parseInt(currentWidget.dataset.gridCol)
+    const col = currentWidget.dataset.col
     let playerArea = null
+
+    console.log(`  In ${area} row ${row} col ${col}`)  
 
     // --- CROSS-AREA BOUNDARY CASES ---
     if (area == GLOBAL_AREA && direction == DOWN) {
@@ -282,38 +285,40 @@ function findNeighbor(currentWidget, direction, player) {
         return lastFocusByPlayerAndArea[player]['global'] ?? firstWidget('global')
     }
     // --- WITHIN-AREA NAVIGATION ---
-    const widgets = Array.from(document.querySelector(".widget"))
+    const widgets = Array.from(document.querySelectorAll(".widget"))
     // Only consider widgets in the same area (enforces player boundary)
-    let candidates = widgets.filter(w => w.dataset.area === playerArea)
+    let candidates = widgets.filter(w => w.dataset.area === area)
+    console.log(` ${candidates.length} of ${widgets.length} widgets in area ${area}`)
     if (direction === LEFT || direction === RIGHT){
         candidates = candidates.filter(w => w.dataset.row === row)
-        candidates.sort((a, b) => a.col - b.col)
+        candidates.sort((a, b) => parseInt(a.col) - parseInt(b.col))
     } else {
         candidates = candidates.filter(w => w.dataset.col === col)
-        candidates.sort((a, b) => a.row - b.row)
+        candidates.sort((a, b) => parseInt(a.row) - parseInt(b.row))
     }
 
     let w = null
     if (direction == LEFT) {
         candidates.reverse()
         for (w of candidates) {
-            if (w.col < currentWidget.col) return w
+          if (w.col < currentWidget.col) break
         }
     } else if (direction == RIGHT) {
         for (w of candidates) {
-            if (w.col > currentWidget.col) return w
+            if (w.col > currentWidget.col) break
         }
     } else if (direction == UP) {
         candidates.reverse()
         for (w of candidates) {
-            if (w.row < currentWidget.row) return w
+            if (w.row < currentWidget.row) break
         }
     } else if (direction == DOWN) {
         for (w of candidates) {
-            if (w.row > currentWidget.row) return w
+            if (w.row > currentWidget.row) break
         }
     }
-    return null
+    console.log(`*** Found widget ${w}`)
+    return w
 }
 
 
