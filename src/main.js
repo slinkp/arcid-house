@@ -184,24 +184,28 @@ function handleControls(player = 1) {
 
   if (newFocusedWidget !== null) {
     console.log(`New widget ${up} ${right} ${down} ${left} is ${newFocusedWidget}`)
-    focus(newFocusedWidget, 1) // player 1 for now
+    focus(newFocusedWidget, player)
   }
 
   if (a && !previousInput[player].a) {
+    console.log(`Firing ${a} for ${player}...`)
     if (focusedWidget?.classList.contains('step')) {
       const beat = focusedWidget.dataset.stepIndex
+      // TODO use 2-d grid here
       pattern[beat] ^= 1
     } else if (focusedWidget === playButton) {
+      console.log("...Toggling play")
       if (AudioEngine.isPlaying()) {
         stopPlayback()
       } else {
         startPlayback()
       }
     } else {
-      // TODO: handle other actionable widget types
+      console.log("...Not on a button-action widget")
     }
   }
 
+  // TODO handle player 2 spinner
   const delta1 = SPIN1.consume_step_delta();
   if (delta1 !== 0) {
     if (focusedWidget.id === 'bpm') {
@@ -309,8 +313,9 @@ function findNeighbor(currentWidget, direction, player) {
         candidates = candidates.filter(w => w.dataset.col === col)
         candidates.sort((a, b) => parseInt(a.row) - parseInt(b.row))
     }
+    console.log(` Down to ${candidates.length} of ${widgets.length} widgets in row ${row}`)
 
-    let w = null
+    let w = currentWidget
     if (direction == LEFT) {
         candidates.reverse()
         for (w of candidates) {
