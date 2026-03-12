@@ -71,7 +71,7 @@ html, body {
   overflow: hidden;
 }
 
-#global-controls {
+#global {
   grid-column: 1 / -1;  /* spans full width, accessible by either player */
   display: grid;
   grid-auto-flow: column;
@@ -82,7 +82,7 @@ html, body {
   height: 16px;
 }
 
-#drum-grid {
+#drums {
   display: grid;
   /* One auto column for drum labels, the rest for beats */
   grid-template-columns: auto repeat(16, 1fr);
@@ -92,7 +92,7 @@ html, body {
   align-items: center; /* vertical */
 }
 
-#bass-grid {
+#bass {
   /* left half — placeholder until bass sequencer is implemented */
   display: flex;
   align-items: center;

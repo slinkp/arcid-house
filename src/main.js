@@ -28,7 +28,6 @@ let previousInput = {
 }
 
 const status = document.querySelector('#status')
-const drumGrid = document.querySelector('#drum-grid')
 const debug = document.querySelector('#debug span')
 const playButton = document.querySelector('#play-pause')
 const bpmControl = document.querySelector('#bpm')
@@ -43,6 +42,7 @@ const focusedWidgetForPlayer = { 1: null, 2: null }
 
 const DRUM_ROW_LABELS = ['SD', 'BD'];
 const stepButtons = []
+const drumGrid = document.querySelector('#drums')
 
 for (let row = 0; row < DRUM_ROW_LABELS.length; row += 1) {
     stepButtons.push([])
@@ -241,7 +241,7 @@ function focus(widget, playerNumber = 1) {
  ONSCREEN NAVIGATION HANDLING
 **********************************************************************/
 
-const DRUM_AREA = 'drum'
+const DRUM_AREA = 'drums'
 const BASS_AREA = 'bass'
 const GLOBAL_AREA = 'global'
 
@@ -260,6 +260,10 @@ const lastFocusByPlayerAndArea = {
     2: { GLOBAL_AREA: null, DRUM_AREA: null }
 }
 
+function firstWidget(area) {
+  return document.querySelector(`#${area} .widget`)
+}
+
 function findNeighbor(currentWidget, direction, player) {
     console.log(`findNeighbor for ${direction} and player ${player} at ${currentWidget.id}`)
     if (currentWidget === null) return null;
@@ -274,15 +278,22 @@ function findNeighbor(currentWidget, direction, player) {
 
     console.log(`  In ${area} row ${row} col ${col}`)  
 
+    // Remember where we are leaving.
+    lastFocusByPlayerAndArea[player][area] = currentWidget
+
     // --- CROSS-AREA BOUNDARY CASES ---
     if (area == GLOBAL_AREA && direction == DOWN) {
-        playerArea = ALLOWED_PLAYER_AREA[player]
-        return lastFocusByPlayerAndArea[player][playerArea] ?? firstWidget(playerArea)
+      playerArea = ALLOWED_PLAYER_AREA[player]
+      console.log(`Navigating down from ${area} to ${playerArea}`)
+      return lastFocusByPlayerAndArea[player][playerArea] ?? firstWidget(playerArea)
     }
     if (area != GLOBAL_AREA && direction == UP && row == 0) {
-        // Rise to global controls, remembering where we were
-        lastFocusByPlayerAndArea[player][area] = currentWidget
-        return lastFocusByPlayerAndArea[player]['global'] ?? firstWidget('global')
+      console.log(`going up to global from ${area} ${row} ${col}`)
+      lastFocusByPlayerAndArea[player][area] = currentWidget
+      const prev = lastFocusByPlayerAndArea[player][GLOBAL_AREA]
+      const fwpa = firstWidget(GLOBAL_AREA)
+      console.log(`  Either ${prev} or ${fwpa}`)
+      return lastFocusByPlayerAndArea[player][GLOBAL_AREA] ?? firstWidget(GLOBAL_AREA)
     }
     // --- WITHIN-AREA NAVIGATION ---
     const widgets = Array.from(document.querySelectorAll(".widget"))

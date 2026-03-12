@@ -34,7 +34,7 @@
 
   <div id="running-app" class="hidden">
 
-    <div id="global-controls">
+    <div id="global">
       <button id="play-pause" class="widget" tabindex="-1"
               data-area="global"
               data-row="0"
@@ -50,18 +50,32 @@
       <span id="bpm" class="widget" tabindex="-1"
             data-area="global"
             data-row="0"
-            data-col="2"
-            >120.0
+            data-col="2">
+        120.0
       </span>
       <div id="debug">Debug: <span>x:0 y:1 step: </span></div>
       <div id="error"></div>
     </div>
 
-    <div id="bass-grid">
-      <div id="bass-placeholder">bass sequencer (todo)</div>
+    <div id="bass">
+      <div id="bass-placeholder"
+           class="widget"
+           data-area="bass"
+           data-row="0"
+           data-col="0"
+           >
+        bass sequencer (todo)
+      </div>
+      <div id="bass-widget-1"
+           class="widget"
+           data-area="bass"
+           data-row="0"
+           data-col="1">
+        placeholder
+      </div>
     </div>
 
-    <div id="drum-grid">
+    <div id="drums">
       <!-- drum rows & cols inserted programatically -->
     </div>
 
