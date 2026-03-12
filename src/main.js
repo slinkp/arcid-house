@@ -308,10 +308,10 @@ function findNeighbor(currentWidget, direction, player) {
     console.log(` ${candidates.length} of ${widgets.length} widgets in area ${area}`)
     if (direction === LEFT || direction === RIGHT){
         candidates = candidates.filter(w => w.dataset.row === row)
-        candidates.sort((a, b) => parseInt(a.col) - parseInt(b.col))
+        candidates.sort((a, b) => parseInt(a.dataset.col) - parseInt(b.dataset.col))
     } else {
         candidates = candidates.filter(w => w.dataset.col === col)
-        candidates.sort((a, b) => parseInt(a.row) - parseInt(b.row))
+        candidates.sort((a, b) => parseInt(a.dataset.row) - parseInt(b.dataset.row))
     }
     console.log(` Down to ${candidates.length} of ${widgets.length} widgets in row ${row}`)
 
@@ -319,20 +319,20 @@ function findNeighbor(currentWidget, direction, player) {
     if (direction == LEFT) {
         candidates.reverse()
         for (w of candidates) {
-          if (w.col < currentWidget.col) break
+          if (parseInt(w.dataset.col) < parseInt(currentWidget.dataset.col)) break
         }
     } else if (direction == RIGHT) {
         for (w of candidates) {
-            if (w.col > currentWidget.col) break
+          if (parseInt(w.dataset.col) > parseInt(currentWidget.dataset.col)) break
         }
     } else if (direction == UP) {
         candidates.reverse()
         for (w of candidates) {
-            if (w.row < currentWidget.row) break
+          if (parseInt(w.dataset.row) < parseInt(currentWidget.dataset.row)) break
         }
     } else if (direction == DOWN) {
         for (w of candidates) {
-            if (w.row > currentWidget.row) break
+          if (parseInt(w.dataset.row) > parseInt(currentWidget.dataset.row)) break
         }
     }
     console.log(`*** Found widget ${w}`)
