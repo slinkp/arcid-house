@@ -59,6 +59,8 @@ for (let row = 0; row < DRUM_ROW_LABELS.length; row += 1) {
         button.classList.add('widget')
         // TODO we need to indicate an instrument too
         button.dataset.stepIndex = index // for mapping to pattern array
+        button.dataset.row = row
+        button.dataset.col = index // redundant?
         drumGrid.appendChild(button)
         stepButtons[row].push(button)
     }
@@ -360,7 +362,8 @@ function renderSteps() {
 
 function update() {
   if (gameStarted) {
-    handleControls()
+    handleControls(1)
+    handleControls(2)
     renderSteps()
   } else if (SYSTEM.ONE_PLAYER || SYSTEM.TWO_PLAYER) {
     startGame()
