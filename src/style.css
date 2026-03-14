@@ -5,8 +5,12 @@
 }
 
 html, body {
+  /*  
   width: 336px;
   height: 262px;
+ */
+  width: 340px;
+  height: 270px;
   overflow: hidden;
   background-color: #1a1a2e;
   color: #eee;
@@ -30,6 +34,7 @@ html, body {
 #start-screen {
   width: 100%;
   height: 100%;
+  max-width: 336px;
   display: flex;
   flex-direction: column;
   padding: 8px;
@@ -63,14 +68,16 @@ html, body {
      player areas */    
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: auto 1fr;
-  padding-top: 10px;
   width: 100%;
   height: 100%;
   gap: 0px;
   /* Never go outside the RCade screen! */
-  max-width: 336px;
-  max-height: 262px;
   overflow: hidden;
+  /* Trial-and-error lining up to edges of RCade screen */
+  max-height: 258px; /* Was 262, 270, 280, 274, 270... and back... then down a bit */
+  max-width: 336px; /* Was 336, 340, 346, 340... and back */
+  padding-top: 8px; /* was 0, 10, 6 */
+  padding-left: 1px; /* was 0, 8, 16, 10, 6, 2 ... with invisible border oops */
 }
 
 #global {
@@ -94,7 +101,7 @@ html, body {
   font-size: 7px;
   align-items: center; /* vertical */
   border: 1px dashed #33c;
-  margin-bottom: 10px;
+  /* margin-bottom: 5px; */
 }
 
 #bass {
@@ -103,10 +110,10 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px dashed #444;
-  color: #999;
-  font-size: 7px;
-  margin-bottom: 5px;
+  border: 1px dashed #aa0;
+  color: #ccc;
+  font-size: 10px;
+  /* margin-bottom: 5px; */
 }
 
 /***************************************************************************
