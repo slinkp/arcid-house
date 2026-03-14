@@ -95,10 +95,13 @@ const AudioEngine = {
 
     this.kick = new Tone.MembraneSynth().toDestination()
     this.sequence = new Tone.Sequence((time, stepIndex) => {
+      // Play everything that happens on the current tick.
       if (this.onStep) this.onStep(stepIndex)
-      if (drumPattern[stepIndex] === 1) {
-        const level = 0.9
-        this.triggerDrum('kick', time, level)
+      for (const [drumLabel, pattern] of drumPattern.entries()) {
+        if (pattern[stepIndex] === 1) {
+          const level = 0.9
+          this.triggerDrum(drumLabel, time, level)
+        }
       }
     }, [...Array(STEPS).keys()], '16n')
 
@@ -130,7 +133,8 @@ const AudioEngine = {
   },
 
   triggerDrum(sampleName, time, velocity) {
-    if (sampleName !== 'kick' || !this.kick) return
+    // TODO support more drum types
+    if (sampleName !== BD || !this.kick) return
     this.kick.triggerAttackRelease('C1', '8n', time, velocity)
   },
 
