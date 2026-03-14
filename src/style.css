@@ -40,8 +40,9 @@ html, body {
 #debug {
   font-size: 8px;
   font-weight: 700;
-  color: #669;
+  color: #99a;
   width: 260px;
+  padding-left: 4px;
 }
 
 #error {
@@ -62,9 +63,10 @@ html, body {
      player areas */    
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: auto 1fr;
+  padding-top: 10px;
   width: 100%;
   height: 100%;
-  gap: 2px;
+  gap: 0px;
   /* Never go outside the RCade screen! */
   max-width: 336px;
   max-height: 262px;
@@ -77,9 +79,10 @@ html, body {
   grid-auto-flow: column;
   grid-template-rows: auto;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   background-color: #222266;
   height: 16px;
+  border: 1px dashed #c58;
 }
 
 #drums {
@@ -90,16 +93,20 @@ html, body {
   gap: 0px;
   font-size: 7px;
   align-items: center; /* vertical */
+  border: 1px dashed #33c;
+  margin-bottom: 10px;
 }
 
 #bass {
   /* left half — placeholder until bass sequencer is implemented */
+  gap: 0px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px dashed #444;
-  color: #555;
+  color: #999;
   font-size: 7px;
+  margin-bottom: 5px;
 }
 
 /***************************************************************************
@@ -131,6 +138,7 @@ html, body {
   gap: 3px;
   font-size: 9px;
   font-weight: 700;
+  padding-left: 10px;
 }
 
 #bpm {
