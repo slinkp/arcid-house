@@ -333,8 +333,11 @@ function showBPM() {
 
 function focus(widget, playerNumber = 1) {
   const cls = `focus-p${playerNumber}`
+  const previousWidget = focusedWidgetForPlayer[playerNumber]
+  if (previousWidget && previousWidget !== widget) {
+    previousWidget.classList.remove(cls)
+  }
   widget.classList.add(cls)
-  focusedWidgetForPlayer[playerNumber]?.classList.remove(cls)
   focusedWidgetForPlayer[playerNumber] = widget
 }
 
@@ -385,13 +388,41 @@ function findNeighbor(currentWidget, direction, player) {
       console.log(`Navigating down from ${area} to ${playerArea}`)
       return lastFocusByPlayerAndArea[player][playerArea] ?? firstWidget(playerArea)
     }
-    if (area != GLOBAL_AREA && direction == UP && row == 0) {
-      console.log(`going up to global from ${area} ${row} ${col}`)
-      lastFocusByPlayerAndArea[player][area] = currentWidget
-      const prev = lastFocusByPlayerAndArea[player][GLOBAL_AREA]
-      const fwpa = firstWidget(GLOBAL_AREA)
-      console.log(`  Either ${prev} or ${fwpa}`)
-      return lastFocusByPlayerAndArea[player][GLOBAL_AREA] ?? firstWidget(GLOBAL_AREA)
+    if (area == GLOBAL_AREA && direction == UP) {
+      playerArea = ALLOWED_PLAYER_AREA[player]
+      const playerWidgets = widgetsInArea(playerArea)
+      if (playerWidgets.length === 0) {
+        return currentWidget
+      }
+      const maxRow = Math.max(...playerWidgets.map(w => parseInt(w.dataset.row)))
+      const bottomRowWidgets = playerWidgets
+        .filter(w => parseInt(w.dataset.row) === maxRow)
+        .sort((a, b) => parseInt(a.dataset.col) - parseInt(b.dataset.col))
+      return closestColWidget(bottomRowWidgets, col) ?? bottomRowWidgets[0] ?? currentWidget
+    }
+    if (area != GLOBAL_AREA && direction == UP) {
+      const areaWidgets = widgetsInArea(area)
+      if (areaWidgets.length > 0) {
+        const minRow = Math.min(...areaWidgets.map(w => parseInt(w.dataset.row)))
+        if (row === minRow) {
+          console.log(`going up to global from ${area} ${row} ${col}`)
+          return lastFocusByPlayerAndArea[player][GLOBAL_AREA] ?? firstWidget(GLOBAL_AREA)
+        }
+      }
+    }
+    if (area != GLOBAL_AREA && direction == DOWN) {
+      const areaWidgets = widgetsInArea(area)
+      if (areaWidgets.length > 0) {
+        const maxRow = Math.max(...areaWidgets.map(w => parseInt(w.dataset.row)))
+        if (row === maxRow) {
+          const globalWidgets = widgetsInArea(GLOBAL_AREA).sort(
+            (a, b) => parseInt(a.dataset.col) - parseInt(b.dataset.col)
+          )
+          return closestColWidget(globalWidgets, col)
+            ?? lastFocusByPlayerAndArea[player][GLOBAL_AREA]
+            ?? firstWidget(GLOBAL_AREA)
+        }
+      }
     }
     // --- WITHIN-AREA NAVIGATION ---
     const widgets = Array.from(document.querySelectorAll(".widget"))
@@ -410,28 +441,44 @@ function findNeighbor(currentWidget, direction, player) {
     }
     console.log(` Down to ${candidates.length} of ${widgets.length} widgets in row ${row}`)
 
-    let w = currentWidget
-    if (direction == LEFT) {
-        candidates.reverse()
-        for (w of candidates) {
-          if (parseInt(w.dataset.col) < parseInt(currentWidget.dataset.col)) break
-        }
-    } else if (direction == RIGHT) {
-        for (w of candidates) {
-          if (parseInt(w.dataset.col) > parseInt(currentWidget.dataset.col)) break
-        }
-    } else if (direction == UP) {
-        candidates.reverse()
-        for (w of candidates) {
-          if (parseInt(w.dataset.row) < parseInt(currentWidget.dataset.row)) break
-        }
-    } else if (direction == DOWN) {
-        for (w of candidates) {
-          if (parseInt(w.dataset.row) > parseInt(currentWidget.dataset.row)) break
-        }
+    if (candidates.length === 0) {
+      return currentWidget
     }
+
+    const currentIndex = candidates.findIndex(w => w === currentWidget)
+    if (currentIndex === -1) {
+      return currentWidget
+    }
+
+    let targetIndex = currentIndex
+    if (direction === LEFT || direction === UP) {
+      targetIndex = (currentIndex - 1 + candidates.length) % candidates.length
+    } else if (direction === RIGHT || direction === DOWN) {
+      targetIndex = (currentIndex + 1) % candidates.length
+    }
+
+    const w = candidates[targetIndex]
     console.log(`*** Found widget ${w}`)
     return w
+}
+
+function widgetsInArea(area) {
+  const widgets = Array.from(document.querySelectorAll(".widget"))
+  return widgets.filter(w => w.dataset.area === area)
+}
+
+function closestColWidget(widgets, targetCol) {
+  if (widgets.length === 0) return null
+  let best = widgets[0]
+  let bestDistance = Math.abs(parseInt(best.dataset.col) - targetCol)
+  for (const w of widgets) {
+    const distance = Math.abs(parseInt(w.dataset.col) - targetCol)
+    if (distance < bestDistance) {
+      best = w
+      bestDistance = distance
+    }
+  }
+  return best
 }
 
 
