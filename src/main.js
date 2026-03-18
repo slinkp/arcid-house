@@ -228,7 +228,7 @@ const AudioEngine = {
 
   triggerBass(stepPitch, time, velocity) {
       const pitch = new Tone.Frequency(stepPitch + CENTER_PITCH - 12, "midi")
-      console.debug(`*** PLAYING ${stepPitch} ${pitch} at ${time}`)
+      // console.debug(`*** PLAYING ${stepPitch} ${pitch} at ${time}`)
       this.bass.triggerAttackRelease(pitch, "16n")
   },
 
@@ -336,10 +336,12 @@ function handleControls(player = 1) {
 
 
 function bassApplyDelta(focusedWidget, delta) {
+  // TODO debounce this on local dev, test on RCade
   const beat = parseInt(focusedWidget.dataset.stepIndex)
   if (Number.isNaN(beat)) return
   const currentPitch = bassPattern[beat].pitch
-  const nextPitch = Math.max(1, Math.min(PITCHES, currentPitch + delta))
+  const incr = delta > 0? 1 : -1    
+  const nextPitch = Math.max(1, Math.min(PITCHES, currentPitch + incr))
   bassPattern[beat].pitch = nextPitch
 }
 
