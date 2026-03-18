@@ -14,7 +14,9 @@ html, body {
   overflow: hidden;
   background-color: #1a1a2e;
   color: #eee;
-  font-family: system-ui, sans-serif;
+  font-family: Source Code Pro, Andale Mono, AndaleMono, Lucida Console, Lucida Sans Typewriter, monaco, Bitstream Vera Sans Mono, monospace;
+
+
 }
 
 .hidden {
@@ -39,8 +41,15 @@ html, body {
   flex-direction: column;
   padding: 8px;
   gap: 8px;
+  font-size: 10px;
 }
 
+#start-screen ul {
+  text-align: left;
+  padding-left: 50px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
 
 #debug {
   font-size: 8px;
@@ -112,7 +121,7 @@ html, body {
   justify-content: center;
   border: 1px dashed #aa0;
   color: #ccc;
-  font-size: 10px;
+  font-size: 7px;
   /* margin-bottom: 5px; */
 }
 
