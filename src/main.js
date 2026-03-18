@@ -4,8 +4,7 @@ import { PLAYER_1, PLAYER_2, SYSTEM } from '@rcade/plugin-input-classic'
 import { PLAYER_1 as SP1 } from "@rcade/plugin-input-spinners"
 
 const STEPS = 16
-const DEFAULT_BPM = 120
-const pattern = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]
+const DEFAULT_BPM = 130
 
 const SPIN1 = SP1.SPINNER
 
@@ -24,7 +23,7 @@ let previousInput = {
         up: false,
         down: false,
         a: false,
-    }        
+    }
 }
 
 const status = document.querySelector('#status')
@@ -40,7 +39,17 @@ const focusedWidgetForPlayer = { 1: null, 2: null }
  Build drum grid
  **********************************************************************/
 
-const DRUM_ROW_LABELS = ['SD', 'BD'];
+const BD = 'BD'
+const SD = 'SD'
+
+const drumPattern = new Map([
+  [BD, [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]],
+  [SD, [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]]
+])
+
+const DRUM_ROW_LABELS = Array.from(drumPattern.keys())
+console.log(`Got drum labels ${DRUM_ROW_LABELS}`)
+
 const stepButtons = []
 const drumGrid = document.querySelector('#drums')
 
@@ -51,6 +60,7 @@ for (let row = 0; row < DRUM_ROW_LABELS.length; row += 1) {
     drumLabel.textContent = DRUM_ROW_LABELS[row]
     drumLabel.dataset.row = row
     drumGrid.appendChild(drumLabel)
+    console.log(`  building step row for ${DRUM_ROW_LABELS[row]} ${row}`)
     // Now the buttons for this row's pattern
     for (let index = 0; index < STEPS; index += 1) {
         const button = document.createElement('div')
@@ -61,6 +71,7 @@ for (let row = 0; row < DRUM_ROW_LABELS.length; row += 1) {
         button.dataset.stepIndex = index // for mapping to pattern array
         button.dataset.row = row
         button.dataset.col = index // redundant?
+        button.dataset.drumLabel = DRUM_ROW_LABELS[row]
         drumGrid.appendChild(button)
         stepButtons[row].push(button)
     }
@@ -83,11 +94,15 @@ const AudioEngine = {
     if (this.initialized) return
 
     this.kick = new Tone.MembraneSynth().toDestination()
+    this.snare = new Tone.NoiseSynth({ "noise": {"type": "pink"}}).toDestination()
     this.sequence = new Tone.Sequence((time, stepIndex) => {
+      // Play everything that happens on the current tick.
       if (this.onStep) this.onStep(stepIndex)
-      if (pattern[stepIndex] === 1) {
-        const level = 0.9
-        this.triggerDrum('kick', time, level)
+      for (const [drumLabel, pattern] of drumPattern.entries()) {
+        if (pattern[stepIndex] === 1) {
+          const level = 0.9
+          this.triggerDrum(drumLabel, time, level)
+        }
       }
     }, [...Array(STEPS).keys()], '16n')
 
@@ -119,8 +134,14 @@ const AudioEngine = {
   },
 
   triggerDrum(sampleName, time, velocity) {
-    if (sampleName !== 'kick' || !this.kick) return
-    this.kick.triggerAttackRelease('C1', '8n', time, velocity)
+    // TODO support more drum types
+    if (sampleName === BD) {
+      this.kick.triggerAttackRelease('C1', '8n', time, velocity)
+    } else if (sampleName === SD) {
+      this.snare.triggerAttackRelease('8n', time, velocity * 2)
+    } else {
+        console.log(`Unknown drum ${sampleName}`)
+    }
   },
 
   isPlaying() {
@@ -190,9 +211,9 @@ function handleControls(player = 1) {
   if (a && !previousInput[player].a) {
     console.log(`Firing ${a} for ${player}...`)
     if (focusedWidget?.classList.contains('step')) {
-      const beat = focusedWidget.dataset.stepIndex
-      // TODO use 2-d grid here
-      pattern[beat] ^= 1
+      const beat = parseInt(focusedWidget.dataset.stepIndex)
+      const drumLabel = focusedWidget.dataset.drumLabel
+      drumPattern.get(drumLabel)[beat] ^= 1
     } else if (focusedWidget === playButton) {
       console.log("...Toggling play")
       if (AudioEngine.isPlaying()) {
@@ -344,20 +365,27 @@ function findNeighbor(currentWidget, direction, player) {
  SEQUENCER GRID UX SETUP
  **********************************************************************/
 
-function renderStepRow(row) {
+
+
+function renderStepRow(row, drumLabel) {
+  let pattern = drumPattern.get(drumLabel)
   for (let index = 0; index < STEPS; index += 1) {
     const button = row[index]
     button.classList.remove('step-active', 'step-playing')
     if (pattern[index] === 1) button.classList.add('step-active')
     if (index === playingStep) button.classList.add('step-playing')
   }
-  const focusedWidget = focusedWidgetForPlayer[1]
-  debug.textContent = `step: ${playingStep >= 0 ? playingStep : '-'}, focus: ${focusedWidget?.id}`
 }
 
 
 function renderSteps() {
-    for (const row of stepButtons) renderStepRow(row);
+  for (const [index, row] of stepButtons.entries()) {
+    const drumLabel = DRUM_ROW_LABELS[index]
+    // console.log(`  Got label ${drumLabel}`)
+    renderStepRow(row, drumLabel)
+  }
+  const focusedWidget = focusedWidgetForPlayer[2]
+  debug.textContent = `step: ${playingStep >= 0 ? playingStep : '-'}, focus: ${focusedWidget?.id}`
 }
 
 
