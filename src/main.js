@@ -4,7 +4,7 @@ import { PLAYER_1, PLAYER_2, SYSTEM } from '@rcade/plugin-input-classic'
 import { PLAYER_1 as SP1 } from "@rcade/plugin-input-spinners"
 
 const STEPS = 16
-const DEFAULT_BPM = 120
+const DEFAULT_BPM = 130
 
 const SPIN1 = SP1.SPINNER
 
@@ -211,9 +211,9 @@ function handleControls(player = 1) {
   if (a && !previousInput[player].a) {
     console.log(`Firing ${a} for ${player}...`)
     if (focusedWidget?.classList.contains('step')) {
-      const beat = focusedWidget.dataset.stepIndex
+      const beat = parseInt(focusedWidget.dataset.stepIndex)
       const drumLabel = focusedWidget.dataset.drumLabel
-      drumPattern[beat] ^= 1
+      drumPattern.get(drumLabel)[beat] ^= 1
     } else if (focusedWidget === playButton) {
       console.log("...Toggling play")
       if (AudioEngine.isPlaying()) {
