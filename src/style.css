@@ -52,11 +52,13 @@ html, body {
 }
 
 #debug {
+  display: none;
   font-size: 8px;
   font-weight: 700;
   color: #99a;
   width: 260px;
   padding-left: 4px;
+  text-align: right;
 }
 
 #error {
@@ -116,7 +118,7 @@ html, body {
 #bass {
   /* left half — bass sequencer */
   display: grid;
-  grid-template-rows: auto auto auto 1fr;
+  grid-template-rows: auto auto auto auto 1fr;
   row-gap: 2px;           /* leave room between steps and pitch row */
   column-gap: 0px;
   align-items: start;
@@ -137,6 +139,17 @@ html, body {
     line-height: 1;
     padding-top: 1px;
     margin-bottom: 1px;
+}
+
+.area-subtitle {
+    display: block;
+    grid-column: 1 / -1;
+    width: 100%;
+    text-align: center;
+    font-size: 6px;
+    line-height: 1;
+    color: #aaa;
+    margin-top: 14px;
 }
 
 #bass-steps {
