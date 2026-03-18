@@ -35,6 +35,10 @@ let gameStarted = false
 
 const focusedWidgetForPlayer = { 1: null, 2: null }
 
+const DRUM_AREA = 'drums'
+const BASS_AREA = 'bass'
+const GLOBAL_AREA = 'global'
+
 
 /**********************************************************************
  Build drum grid
@@ -76,13 +80,14 @@ for (let row = 0; row < DRUM_ROW_LABELS.length; row += 1) {
         button.dataset.row = row
         button.dataset.col = index // redundant?
         button.dataset.drumLabel = DRUM_ROW_LABELS[row]
+        button.dataset.area = DRUM_AREA
         drumGrid.appendChild(button)
         stepButtons[row].push(button)
     }
 }
 
 /************************************************************************************
-Initialize bass sequencer grid UX
+Build bass sequencer grid UX
 
 Pitches are abstract semitones 1-n, relative to a default center pitch.
 We'll assume any audio backend we want supports MIDI pitch?
@@ -105,6 +110,7 @@ for (let index = 0; index < STEPS; index += 1) {
     button.setAttribute('tabindex', -1) // make focusable by our class system, but not via tab-key
     button.classList.add('step')
     button.classList.add('widget')
+    button.dataset.area = BASS_AREA
     button.dataset.stepIndex = index // for mapping to pattern array
     button.dataset.row = 1
     button.dataset.col = index // redundant?
@@ -275,6 +281,7 @@ function handleControls(player = 1) {
     if (focusedWidget?.classList.contains('step')) {
       const beat = parseInt(focusedWidget.dataset.stepIndex)
       const drumLabel = focusedWidget.dataset.drumLabel
+      // TODO this only works for drums / player 2. For player 1 we need pitch
       drumPattern.get(drumLabel)[beat] ^= 1
     } else if (focusedWidget === playButton) {
       console.log("...Toggling play")
@@ -284,7 +291,7 @@ function handleControls(player = 1) {
         startPlayback()
       }
     } else {
-      console.log("...Not on a button-action widget")
+      console.debug("...Ignoring A on a non-button widget")
     }
   }
 
@@ -333,10 +340,6 @@ function focus(widget, playerNumber = 1) {
 /**********************************************************************
  ONSCREEN NAVIGATION HANDLING
 **********************************************************************/
-
-const DRUM_AREA = 'drums'
-const BASS_AREA = 'bass'
-const GLOBAL_AREA = 'global'
 
 const ALLOWED_PLAYER_AREA = { 1: BASS_AREA, 2: DRUM_AREA }
 
