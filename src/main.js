@@ -1,12 +1,13 @@
 import './style.css'
 import * as Tone from 'tone'
 import { PLAYER_1, PLAYER_2, SYSTEM } from '@rcade/plugin-input-classic'
-import { PLAYER_1 as SP1 } from "@rcade/plugin-input-spinners"
+import { PLAYER_1 as SP1, PLAYER_2 as SP2 } from "@rcade/plugin-input-spinners"
 
 const STEPS = 16
 const DEFAULT_BPM = 130
 
 const SPIN1 = SP1.SPINNER
+const SPIN2 = SP2.SPINNER
 
 let playingStep = -1
 let previousInput = {
@@ -47,7 +48,6 @@ const drumPattern = new Map([
   [BD, [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0]],
   [SD, [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]],
   [HH, [0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1]]
-
 ])
 
 const DRUM_ROW_LABELS = Array.from(drumPattern.keys())
@@ -183,18 +183,21 @@ function handleControls(player = 1) {
   let up = null;
   let down = null;
   let a = null;
+  let spin = null;
   if (player == 1) {
     left = PLAYER_1.DPAD.left
     right = PLAYER_1.DPAD.right
     up = PLAYER_1.DPAD.up
     down = PLAYER_1.DPAD.down
     a = PLAYER_1.A
+    spin = SPIN1
   } else {
     left = PLAYER_2.DPAD.left
     right = PLAYER_2.DPAD.right
     up = PLAYER_2.DPAD.up
     down = PLAYER_2.DPAD.down
     a = PLAYER_2.A
+    spin = SPIN2
   }
   let newFocusedWidget = null
   const focusedWidget = focusedWidgetForPlayer[player]
@@ -236,27 +239,31 @@ function handleControls(player = 1) {
     }
   }
 
-  // TODO handle player 2 spinner
-  const delta1 = SPIN1.consume_step_delta();
-  if (delta1 !== 0) {
+  const delta = spin.consume_step_delta();
+  if (delta !== 0) {
     if (focusedWidget.id === 'bpm') {
-      // TODO: make this smoother? hardwiring 0.2 is a hack to make it usable in browser, 
-      // but it limits speed on spinner hardware
-      if (delta1 > 0) {
-        AudioEngine.incrementBPM(0.2)
-      }
-      if (delta1 < 0) {
-        AudioEngine.incrementBPM(-0.2)
-      }
-      showBPM()
-    }
-    else {
-      // TODO: handle other spinnable widgets
+        bpmApplyDelta(delta)
+    } else {
+    // TODO: handle other spinnable widgets
     }
   }
-
   previousInput[player] = { left, right, up, down, a }
 }
+
+
+function bpmApplyDelta(delta) {
+  // TODO: make this smoother? hardwiring 0.2 is a hack to make it usable in browser, 
+  // but it limits speed on spinner hardware
+  console.log(`Applying spin delta ${delta}`)
+  if (delta > 0) {
+    AudioEngine.incrementBPM(0.2)
+  }
+  if (delta < 0) {
+    AudioEngine.incrementBPM(-0.2)
+  }
+  showBPM()
+}
+
 
 /**********************************************************************
  USER FEEDBACK
