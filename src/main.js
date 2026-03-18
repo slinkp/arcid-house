@@ -41,10 +41,13 @@ const focusedWidgetForPlayer = { 1: null, 2: null }
 
 const BD = 'BD'
 const SD = 'SD'
+const HH = 'HH'
 
 const drumPattern = new Map([
-  [BD, [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]],
-  [SD, [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]]
+  [BD, [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0]],
+  [SD, [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]],
+  [HH, [0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1]]
+
 ])
 
 const DRUM_ROW_LABELS = Array.from(drumPattern.keys())
@@ -94,7 +97,10 @@ const AudioEngine = {
     if (this.initialized) return
 
     this.kick = new Tone.MembraneSynth().toDestination()
+    /* TODO not a very good snare */  
     this.snare = new Tone.NoiseSynth({ "noise": {"type": "pink"}}).toDestination()
+    this.hh = new Tone.NoiseSynth({ "noise": {"type": "white"}}).toDestination()
+    /* Set up the main sequence loop */
     this.sequence = new Tone.Sequence((time, stepIndex) => {
       // Play everything that happens on the current tick.
       if (this.onStep) this.onStep(stepIndex)
@@ -138,7 +144,11 @@ const AudioEngine = {
     if (sampleName === BD) {
       this.kick.triggerAttackRelease('C1', '8n', time, velocity)
     } else if (sampleName === SD) {
+      // TODO don't hardcode velocity here
       this.snare.triggerAttackRelease('8n', time, velocity * 2)
+    } else if (sampleName === HH) {
+      // TODO don't hardcode velocity here
+      this.hh.triggerAttackRelease('8n', time, velocity * 0.5)
     } else {
         console.log(`Unknown drum ${sampleName}`)
     }
