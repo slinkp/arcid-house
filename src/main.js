@@ -367,11 +367,11 @@ function findNeighbor(currentWidget, direction, player) {
     if (currentWidget === null) return null;
 
     const area = currentWidget.dataset.area
-    const row = currentWidget.dataset.row
+    const row = parseInt(currentWidget.dataset.row)
     // FOr now we assume all widgets occupy exactly 1 column.
     // If that changes, we can specify how many columns we span,
     // and from that calculate the end and center as needed.
-    const col = currentWidget.dataset.col
+    const col = parseInt(currentWidget.dataset.col)
     let playerArea = null
 
     console.log(`  In ${area} row ${row} col ${col}`)  
@@ -396,14 +396,17 @@ function findNeighbor(currentWidget, direction, player) {
     // --- WITHIN-AREA NAVIGATION ---
     const widgets = Array.from(document.querySelectorAll(".widget"))
     // Only consider widgets in the same area (enforces player boundary)
-    let candidates = widgets.filter(w => w.dataset.area === area)
+    const areaWidgets = widgets.filter(w => w.dataset.area === area)
+    let candidates = areaWidgets
     console.log(` ${candidates.length} of ${widgets.length} widgets in area ${area}`)
-    if (direction === LEFT || direction === RIGHT){
-        candidates = candidates.filter(w => w.dataset.row === row)
-        candidates.sort((a, b) => parseInt(a.dataset.col) - parseInt(b.dataset.col))
+    if (direction === LEFT || direction === RIGHT) {
+        candidates = candidates
+          .filter(w => parseInt(w.dataset.row) === row)
+          .sort((a, b) => parseInt(a.dataset.col) - parseInt(b.dataset.col))
     } else {
-        candidates = candidates.filter(w => w.dataset.col === col)
-        candidates.sort((a, b) => parseInt(a.dataset.row) - parseInt(b.dataset.row))
+        candidates = candidates
+          .filter(w => parseInt(w.dataset.col) === col)
+          .sort((a, b) => parseInt(a.dataset.row) - parseInt(b.dataset.row))
     }
     console.log(` Down to ${candidates.length} of ${widgets.length} widgets in row ${row}`)
 
