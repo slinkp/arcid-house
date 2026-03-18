@@ -4,7 +4,7 @@ import { PLAYER_1, PLAYER_2, SYSTEM } from '@rcade/plugin-input-classic'
 import { PLAYER_1 as SP1, PLAYER_2 as SP2 } from "@rcade/plugin-input-spinners"
 
 const STEPS = 16
-const DEFAULT_BPM = 130
+const DEFAULT_BPM = 30 // 130
 
 const SPIN1 = SP1.SPINNER
 const SPIN2 = SP2.SPINNER
@@ -167,6 +167,7 @@ const AudioEngine = {
       }
     }, [...Array(STEPS).keys()], '16n')
 
+    this.setBPM(DEFAULT_BPM)
     this.sequence.start(0)
     this.initialized = true
   },
@@ -308,14 +309,15 @@ function handleControls(player = 1) {
 
 
 function bpmApplyDelta(delta) {
-  // TODO: make this smoother? hardwiring 0.2 is a hack to make it usable in browser, 
-  // but it limits speed on spinner hardware
+  // TODO: make this smoother? hardwiring is a hack to make it usable in browser, 
+  // but it limits speed on spinner hardware.
+  const incr = 0.3    
   console.log(`Applying spin delta ${delta}`)
   if (delta > 0) {
-    AudioEngine.incrementBPM(0.2)
+    AudioEngine.incrementBPM(incr)
   }
   if (delta < 0) {
-    AudioEngine.incrementBPM(-0.2)
+    AudioEngine.incrementBPM(-incr)
   }
   showBPM()
 }
