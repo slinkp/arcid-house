@@ -217,6 +217,13 @@ html, body {
   outline-offset: 0;
 }
 
+/* Shared focus state: both players are on the same widget. */
+.widget.focus-p1.focus-p2 {
+  outline: 1px solid #fff !important;
+  outline-offset: 0;
+  box-shadow: 0 0 0 1px #00e5ff, 0 0 0 2px #ff2b2b;
+}
+
 /* Bass pitch keyboard thing */
 
 .keyboard-key {
