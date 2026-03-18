@@ -100,7 +100,11 @@ const _bassInitChoices = [1, 1, 2, 12, 12, 12, 13, 10, 12, 10, 24, 24, 19, 19, 0
 let bassPattern = []
 for (let i = 0; i < STEPS; i += 1) {
     const j = Math.floor(Math.random() * _bassInitChoices.length)
-    bassPattern.push(_bassInitChoices[j])
+    const initialPitch = _bassInitChoices[j]
+    bassPattern.push({
+      active: initialPitch > 0,
+      pitch: initialPitch > 0 ? initialPitch : 12
+    })
 }
 console.debug(`Bass pattern: ${bassPattern}`)
 const bassStepButtons = []
@@ -173,8 +177,9 @@ const AudioEngine = {
           this.triggerDrum(drumLabel, time, level)
         }
       }
-      if (bassPattern[stepIndex] > 0) {
-        this.triggerBass(bassPattern[stepIndex], time, 0.9)
+      const bassStep = bassPattern[stepIndex]
+      if (bassStep.active) {
+        this.triggerBass(bassStep.pitch, time, 0.9)
       }
     }, [...Array(STEPS).keys()], '16n')
 
@@ -221,9 +226,9 @@ const AudioEngine = {
     }
   },
 
-  triggerBass(stepData, time, velocity) {
-      const pitch = new Tone.Frequency(stepData + CENTER_PITCH - 12, "midi")
-      console.debug(`*** PLAYING ${stepData} ${pitch} at ${time}`)
+  triggerBass(stepPitch, time, velocity) {
+      const pitch = new Tone.Frequency(stepPitch + CENTER_PITCH - 12, "midi")
+      console.debug(`*** PLAYING ${stepPitch} ${pitch} at ${time}`)
       this.bass.triggerAttackRelease(pitch, "16n")
   },
 
@@ -298,9 +303,12 @@ function handleControls(player = 1) {
     console.log(`Firing ${a} for ${player}...`)
     if (focusedWidget?.classList.contains('step')) {
       const beat = parseInt(focusedWidget.dataset.stepIndex)
-      const drumLabel = focusedWidget.dataset.drumLabel
-      // TODO this only works for drums / player 2. For player 1 we need pitch
-      drumPattern.get(drumLabel)[beat] ^= 1
+      if (focusedWidget.dataset.area === DRUM_AREA) {
+        const drumLabel = focusedWidget.dataset.drumLabel
+        drumPattern.get(drumLabel)[beat] ^= 1
+      } else if (focusedWidget.dataset.area === BASS_AREA && player === 1) {
+        bassPattern[beat].active = !bassPattern[beat].active
+      }
     } else if (focusedWidget === playButton) {
       console.log("...Toggling play")
       if (AudioEngine.isPlaying()) {
@@ -317,11 +325,22 @@ function handleControls(player = 1) {
   if (delta !== 0) {
     if (focusedWidget.id === 'bpm') {
         bpmApplyDelta(delta)
+    } else if (player === 1 && focusedWidget?.dataset?.area === BASS_AREA) {
+      bassApplyDelta(focusedWidget, delta)
     } else {
     // TODO: handle other spinnable widgets
     }
   }
   previousInput[player] = { left, right, up, down, a }
+}
+
+
+function bassApplyDelta(focusedWidget, delta) {
+  const beat = parseInt(focusedWidget.dataset.stepIndex)
+  if (Number.isNaN(beat)) return
+  const currentPitch = bassPattern[beat].pitch
+  const nextPitch = Math.max(1, Math.min(PITCHES, currentPitch + delta))
+  bassPattern[beat].pitch = nextPitch
 }
 
 
@@ -532,18 +551,15 @@ function renderSteps() {
 function renderBassSteps() {
   for (let i = 0; i < STEPS; i += 1) {
     const step = bassStepButtons[i]
-    updateStepDisplay(step, i, bassPattern)
+    step.classList.remove('step-active', 'step-playing')
+    if (bassPattern[i].active) step.classList.add('step-active')
+    if (i === playingStep) step.classList.add('step-playing')
   }
 }
 
 function renderBassKeys() {
-    const focused = focusedWidgetForPlayer[1]
-    let focusedPitch = undefined
-    if (focused != null && focused.dataset?.stepIndex !== undefined) {
-        const step = parseInt(focused.dataset.stepIndex)
-        focusedPitch = bassPattern[step]
-        console.debug(` focusedPitch ${focusedPitch}, step ${step}`)
-    }
+    const selectedStep = selectedBassStep()
+    const focusedPitch = selectedStep === null ? undefined : bassPattern[selectedStep].pitch
 
     // TODO i don't really like having pitch 1-based and index 0-based,
     // but semitones 1-12 is easier for player to grok. What do?
@@ -557,13 +573,24 @@ function renderBassKeys() {
           key.classList.remove("editing-key")
       }
 
-      if (bassPattern[playingStep] === pitch) {
+      if (playingStep >= 0 && bassPattern[playingStep].active && bassPattern[playingStep].pitch === pitch) {
           key.classList.add("playing-key")
       } else {
-          // console.log(`key ${i} pitch ${pitch} != ${bassPattern[playingStep]}`)
           key.classList.remove("playing-key")
       }
     }
+}
+
+function selectedBassStep() {
+  const focused = focusedWidgetForPlayer[1]
+  if (focused?.dataset?.area === BASS_AREA && focused.dataset?.stepIndex !== undefined) {
+    return parseInt(focused.dataset.stepIndex)
+  }
+  const lastBassFocused = lastFocusByPlayerAndArea[1][BASS_AREA]
+  if (lastBassFocused?.dataset?.stepIndex !== undefined) {
+    return parseInt(lastBassFocused.dataset.stepIndex)
+  }
+  return null
 }
 
 
