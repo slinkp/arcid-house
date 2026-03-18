@@ -105,7 +105,7 @@ html, body {
   display: grid;
   /* One auto column for drum labels, the rest for beats */
   grid-template-columns: auto repeat(16, 1fr);
-  grid-template-rows: repeat(10, 1fr);
+  grid-template-rows: auto repeat(10, 1fr);
   gap: 0px;
   font-size: 7px;
   align-items: center; /* vertical */
@@ -116,7 +116,7 @@ html, body {
 #bass {
   /* left half — bass sequencer */
   display: grid;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto auto auto 1fr;
   row-gap: 2px;           /* leave room between steps and pitch row */
   column-gap: 0px;
   align-items: start;
@@ -124,7 +124,19 @@ html, body {
   color: #ccc;
   font-size: 7px;
   /* margin-bottom: 5px; */
-  padding-top: 20px;
+  padding-top: 2px;
+}
+
+.area-title {
+    display: block;
+    grid-column: 1 / -1;
+    width: 100%;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    padding-top: 1px;
+    margin-bottom: 1px;
 }
 
 #bass-steps {
