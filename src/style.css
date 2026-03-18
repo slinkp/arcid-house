@@ -114,15 +114,32 @@ html, body {
 }
 
 #bass {
-  /* left half — placeholder until bass sequencer is implemented */
-  gap: 0px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  /* left half — bass sequencer */
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  row-gap: 2px;           /* leave room between steps and pitch row */
+  column-gap: 0px;
+  align-items: start;
   border: 1px dashed #aa0;
   color: #ccc;
   font-size: 7px;
   /* margin-bottom: 5px; */
+  padding-top: 20px;
+}
+
+#bass-steps {
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
+    gap: 0px;
+}
+
+#bass-pitches {
+    margin-top: 4px;
+    display: grid;
+    grid-template-columns: repeat(24, 1fr);
+    gap: 0px;
+    background: #222;      /* visible strip under the steps */
+    padding-top: 1px;
 }
 
 /***************************************************************************
@@ -198,4 +215,16 @@ html, body {
 .focus-p2 {
   outline: 1px solid #ff2b2b !important;
   outline-offset: 0;
+}
+
+/* Bass pitch keyboard thing */
+
+.keyboard-key {
+  /* Explicit size so keys are clearly visible */
+  width: 6px;
+  height: 16px;
+  border: 1px solid #000;
+  background: #FFF;
+  justify-self: center;
+  align-self: start;
 }

@@ -56,6 +56,7 @@ console.log(`Got drum labels ${DRUM_ROW_LABELS}`)
 const stepButtons = []
 const drumGrid = document.querySelector('#drums')
 
+// Initialize drum sequencer grid UX
 for (let row = 0; row < DRUM_ROW_LABELS.length; row += 1) {
     stepButtons.push([])
     const drumLabel = document.createElement('span')
@@ -78,6 +79,52 @@ for (let row = 0; row < DRUM_ROW_LABELS.length; row += 1) {
         drumGrid.appendChild(button)
         stepButtons[row].push(button)
     }
+}
+
+/************************************************************************************
+Initialize bass sequencer grid UX
+
+Pitches are abstract semitones 1-n, relative to a default center pitch.
+We'll assume any audio backend we want supports MIDI pitch?
+************************************************************************************/
+
+// random initial bassline, why not
+const _bassInitChoices = [1, 1, 2, 12, 12, 12, 13, 10, 12, 10, 24, 24, 19, 19, 0, 0, 0, 0, 0, 0]
+let bassPattern = []
+for (let i = 0; i < STEPS; i += 1) {
+    const j = Math.floor(Math.random() * _bassInitChoices.length)
+    bassPattern.push(_bassInitChoices[j])
+}
+
+const bassStepButtons = []
+const bassGrid = document.querySelector('#bass-steps')
+
+// Only one row for bass - now and forever?
+for (let index = 0; index < STEPS; index += 1) {
+    const button = document.createElement('div')
+    button.setAttribute('tabindex', -1) // make focusable by our class system, but not via tab-key
+    button.classList.add('step')
+    button.classList.add('widget')
+    button.dataset.stepIndex = index // for mapping to pattern array
+    button.dataset.row = 1
+    button.dataset.col = index // redundant?
+    bassGrid.appendChild(button)
+    bassStepButtons.push(button)
+}
+
+
+// Bass pitch display
+const bassKeyboard = document.querySelector('#bass-pitches')
+
+const PITCHES = 24
+for (let index = 0; index < PITCHES; index += 1) {
+    const key = document.createElement('div')
+    key.setAttribute('tabIndex', -1)
+    key.classList.add('keyboard-key')
+    key.dataset.stepIndex = index
+    key.dataset.row = 1
+    key.dataset.col = index
+    bassKeyboard.appendChild(key)
 }
 
 /**********************************************************************
