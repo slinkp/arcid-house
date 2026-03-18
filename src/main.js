@@ -4,7 +4,7 @@ import { PLAYER_1, PLAYER_2, SYSTEM } from '@rcade/plugin-input-classic'
 import { PLAYER_1 as SP1, PLAYER_2 as SP2 } from "@rcade/plugin-input-spinners"
 
 const STEPS = 16
-const DEFAULT_BPM = 130
+const DEFAULT_BPM = 30 // 130
 
 const SPIN1 = SP1.SPINNER
 const SPIN2 = SP2.SPINNER
@@ -35,6 +35,10 @@ let gameStarted = false
 
 const focusedWidgetForPlayer = { 1: null, 2: null }
 
+const DRUM_AREA = 'drums'
+const BASS_AREA = 'bass'
+const GLOBAL_AREA = 'global'
+
 
 /**********************************************************************
  Build drum grid
@@ -56,6 +60,7 @@ console.log(`Got drum labels ${DRUM_ROW_LABELS}`)
 const stepButtons = []
 const drumGrid = document.querySelector('#drums')
 
+// Initialize drum sequencer grid UX
 for (let row = 0; row < DRUM_ROW_LABELS.length; row += 1) {
     stepButtons.push([])
     const drumLabel = document.createElement('span')
@@ -75,9 +80,59 @@ for (let row = 0; row < DRUM_ROW_LABELS.length; row += 1) {
         button.dataset.row = row
         button.dataset.col = index // redundant?
         button.dataset.drumLabel = DRUM_ROW_LABELS[row]
+        button.dataset.area = DRUM_AREA
         drumGrid.appendChild(button)
         stepButtons[row].push(button)
     }
+}
+
+/************************************************************************************
+Build bass sequencer grid UX
+
+Pitches are abstract semitones 1-n, relative to a default center pitch.
+We'll assume any audio backend we want supports MIDI pitch?
+************************************************************************************/
+
+// random initial bassline, why not
+const _bassInitChoices = [1, 1, 2, 12, 12, 12, 13, 10, 12, 10, 24, 24, 19, 19, 0, 0, 0, 0, 0, 0]
+let bassPattern = []
+for (let i = 0; i < STEPS; i += 1) {
+    const j = Math.floor(Math.random() * _bassInitChoices.length)
+    bassPattern.push(_bassInitChoices[j])
+}
+
+const bassStepButtons = []
+const bassGrid = document.querySelector('#bass-steps')
+
+// Only one row for bass - now and forever?
+for (let index = 0; index < STEPS; index += 1) {
+    const button = document.createElement('div')
+    button.setAttribute('tabindex', -1) // make focusable by our class system, but not via tab-key
+    button.classList.add('step')
+    button.classList.add('widget')
+    button.dataset.area = BASS_AREA
+    button.dataset.stepIndex = index // for mapping to pattern array
+    button.dataset.row = 1
+    button.dataset.col = index // redundant?
+    bassGrid.appendChild(button)
+    bassStepButtons.push(button)
+}
+
+
+// Bass pitch display
+const bassKeyboard = document.querySelector('#bass-pitches')
+const bassKeys = []
+
+const PITCHES = 24
+for (let index = 0; index < PITCHES; index += 1) {
+    const key = document.createElement('div')
+    key.setAttribute('tabIndex', -1)
+    key.classList.add('keyboard-key')
+    key.dataset.stepIndex = index
+    key.dataset.row = 1
+    key.dataset.col = index
+    bassKeyboard.appendChild(key)
+    bassKeys.push(key)
 }
 
 /**********************************************************************
@@ -112,6 +167,7 @@ const AudioEngine = {
       }
     }, [...Array(STEPS).keys()], '16n')
 
+    this.setBPM(DEFAULT_BPM)
     this.sequence.start(0)
     this.initialized = true
   },
@@ -226,6 +282,7 @@ function handleControls(player = 1) {
     if (focusedWidget?.classList.contains('step')) {
       const beat = parseInt(focusedWidget.dataset.stepIndex)
       const drumLabel = focusedWidget.dataset.drumLabel
+      // TODO this only works for drums / player 2. For player 1 we need pitch
       drumPattern.get(drumLabel)[beat] ^= 1
     } else if (focusedWidget === playButton) {
       console.log("...Toggling play")
@@ -235,7 +292,7 @@ function handleControls(player = 1) {
         startPlayback()
       }
     } else {
-      console.log("...Not on a button-action widget")
+      console.debug("...Ignoring A on a non-button widget")
     }
   }
 
@@ -252,14 +309,15 @@ function handleControls(player = 1) {
 
 
 function bpmApplyDelta(delta) {
-  // TODO: make this smoother? hardwiring 0.2 is a hack to make it usable in browser, 
-  // but it limits speed on spinner hardware
+  // TODO: make this smoother? hardwiring is a hack to make it usable in browser, 
+  // but it limits speed on spinner hardware.
+  const incr = 0.3    
   console.log(`Applying spin delta ${delta}`)
   if (delta > 0) {
-    AudioEngine.incrementBPM(0.2)
+    AudioEngine.incrementBPM(incr)
   }
   if (delta < 0) {
-    AudioEngine.incrementBPM(-0.2)
+    AudioEngine.incrementBPM(-incr)
   }
   showBPM()
 }
@@ -284,10 +342,6 @@ function focus(widget, playerNumber = 1) {
 /**********************************************************************
  ONSCREEN NAVIGATION HANDLING
 **********************************************************************/
-
-const DRUM_AREA = 'drums'
-const BASS_AREA = 'bass'
-const GLOBAL_AREA = 'global'
 
 const ALLOWED_PLAYER_AREA = { 1: BASS_AREA, 2: DRUM_AREA }
 
@@ -383,14 +437,17 @@ function findNeighbor(currentWidget, direction, player) {
  **********************************************************************/
 
 
+function updateStepDisplay(element, index, pattern) {
+  element.classList.remove('step-active', 'step-playing')
+  if (pattern[index] > 0) element.classList.add('step-active')
+  if (index === playingStep) element.classList.add('step-playing')
+}
 
 function renderStepRow(row, drumLabel) {
   let pattern = drumPattern.get(drumLabel)
   for (let index = 0; index < STEPS; index += 1) {
     const button = row[index]
-    button.classList.remove('step-active', 'step-playing')
-    if (pattern[index] === 1) button.classList.add('step-active')
-    if (index === playingStep) button.classList.add('step-playing')
+    updateStepDisplay(button, index, pattern)
   }
 }
 
@@ -405,6 +462,43 @@ function renderSteps() {
   debug.textContent = `step: ${playingStep >= 0 ? playingStep : '-'}, focus: ${focusedWidget?.id}`
 }
 
+function renderBassSteps() {
+  for (let i = 0; i < STEPS; i += 1) {
+    const step = bassStepButtons[i]
+    updateStepDisplay(step, i, bassPattern)
+  }
+}
+
+function renderBassKeys() {
+    const focused = focusedWidgetForPlayer[1]
+    let focusedPitch = undefined
+    if (focused != null && focused.dataset?.stepIndex !== undefined) {
+        const step = parseInt(focused.dataset.stepIndex)
+        focusedPitch = bassPattern[step]
+        console.debug(` focusedPitch ${focusedPitch}, step ${step}`)
+    }
+
+    // TODO i don't really like having pitch 1-based and index 0-based,
+    // but semitones 1-12 is easier for player to grok. What do?
+    for (let i = 0; i < PITCHES; i += 1) {
+      const pitch = i + 1
+      const key = bassKeys[i]
+
+      if (pitch === focusedPitch) {
+          key.classList.add("editing-key")
+      } else {
+          key.classList.remove("editing-key")
+      }
+
+      if (bassPattern[playingStep] === pitch) {
+          key.classList.add("playing-key")
+      } else {
+          // console.log(`key ${i} pitch ${pitch} != ${bassPattern[playingStep]}`)
+          key.classList.remove("playing-key")
+      }
+    }
+}
+
 
 /**************************************************************************************** 
  * MAIN GAME LOOP
@@ -414,6 +508,8 @@ function update() {
   if (gameStarted) {
     handleControls(1)
     handleControls(2)
+    renderBassSteps()
+    renderBassKeys()
     renderSteps()
   } else if (SYSTEM.ONE_PLAYER || SYSTEM.TWO_PLAYER) {
     startGame()
@@ -427,6 +523,8 @@ function startGame() {
       showBPM()
       document.querySelector('#start-screen').classList.add('hidden')
       document.querySelector('#running-app').classList.remove('hidden')
+      renderBassSteps()
+      renderBassKeys()
       renderSteps()
       focus(playButton, 1)
       focus(bpmControl, 2)
