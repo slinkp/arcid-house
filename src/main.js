@@ -4,7 +4,9 @@ import { PLAYER_1, PLAYER_2, SYSTEM } from '@rcade/plugin-input-classic'
 import { PLAYER_1 as SP1, PLAYER_2 as SP2 } from "@rcade/plugin-input-spinners"
 
 const STEPS = 16
-const DEFAULT_BPM = 30 // 130
+const DEFAULT_BPM = 130
+
+const CENTER_PITCH = 43 // MIDI G2 approx 97 Hz
 
 const SPIN1 = SP1.SPINNER
 const SPIN2 = SP2.SPINNER
@@ -100,7 +102,7 @@ for (let i = 0; i < STEPS; i += 1) {
     const j = Math.floor(Math.random() * _bassInitChoices.length)
     bassPattern.push(_bassInitChoices[j])
 }
-
+console.debug(`Bass pattern: ${bassPattern}`)
 const bassStepButtons = []
 const bassGrid = document.querySelector('#bass-steps')
 
@@ -151,10 +153,16 @@ const AudioEngine = {
   init() {
     if (this.initialized) return
 
+    /* INSTRUMENTS */
     this.kick = new Tone.MembraneSynth().toDestination()
     /* TODO not a very good snare */  
     this.snare = new Tone.NoiseSynth({ "noise": {"type": "pink"}}).toDestination()
     this.hh = new Tone.NoiseSynth({ "noise": {"type": "white"}}).toDestination()
+
+    // fatsawtooth also sounds cool
+    this.bass = new Tone.Synth({'oscillator': {'type': 'sawtooth'}}).toDestination()
+    console.log("instruments set up!")
+
     /* Set up the main sequence loop */
     this.sequence = new Tone.Sequence((time, stepIndex) => {
       // Play everything that happens on the current tick.
@@ -164,6 +172,9 @@ const AudioEngine = {
           const level = 0.9
           this.triggerDrum(drumLabel, time, level)
         }
+      }
+      if (bassPattern[stepIndex] > 0) {
+        this.triggerBass(bassPattern[stepIndex], time, 0.9)
       }
     }, [...Array(STEPS).keys()], '16n')
 
@@ -208,6 +219,12 @@ const AudioEngine = {
     } else {
         console.log(`Unknown drum ${sampleName}`)
     }
+  },
+
+  triggerBass(stepData, time, velocity) {
+      const pitch = new Tone.Frequency(stepData + CENTER_PITCH - 12, "midi")
+      console.debug(`*** PLAYING ${stepData} ${pitch} at ${time}`)
+      this.bass.triggerAttackRelease(pitch, "16n")
   },
 
   isPlaying() {
