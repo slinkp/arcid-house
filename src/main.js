@@ -470,17 +470,33 @@ function renderBassSteps() {
 }
 
 function renderBassKeys() {
-    for (let i = 1; i < PITCHES; i += 1) {
+    const focused = focusedWidgetForPlayer[1]
+    let focusedPitch = undefined
+    if (focused != null && focused.dataset?.stepIndex !== undefined) {
+        const step = parseInt(focused.dataset.stepIndex)
+        focusedPitch = bassPattern[step]
+        console.debug(` focusedPitch ${focusedPitch}, step ${step}`)
+    }
+
+    // TODO i don't really like having pitch 1-based and index 0-based,
+    // but semitones 1-12 is easier for player to grok. What do?
+    for (let i = 0; i < PITCHES; i += 1) {
       const pitch = i + 1
       const key = bassKeys[i]
-      // TODO this is wrong: we should display the key for the SELECTED beat
-      if (bassPattern[playingStep] === pitch) {
-          key.classList.add("active-key")
+
+      if (pitch === focusedPitch) {
+          key.classList.add("editing-key")
       } else {
-          console.log(`key ${i} pitch ${pitch} != ${bassPattern[playingStep]}`)
-          key.classList.remove("active-key")
+          key.classList.remove("editing-key")
       }
-  }
+
+      if (bassPattern[playingStep] === pitch) {
+          key.classList.add("playing-key")
+      } else {
+          // console.log(`key ${i} pitch ${pitch} != ${bassPattern[playingStep]}`)
+          key.classList.remove("playing-key")
+      }
+    }
 }
 
 
