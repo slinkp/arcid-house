@@ -430,14 +430,17 @@ function findNeighbor(currentWidget, direction, player) {
  **********************************************************************/
 
 
+function updateStepDisplay(element, index, pattern) {
+  element.classList.remove('step-active', 'step-playing')
+  if (pattern[index] > 0) element.classList.add('step-active')
+  if (index === playingStep) element.classList.add('step-playing')
+}
 
 function renderStepRow(row, drumLabel) {
   let pattern = drumPattern.get(drumLabel)
   for (let index = 0; index < STEPS; index += 1) {
     const button = row[index]
-    button.classList.remove('step-active', 'step-playing')
-    if (pattern[index] === 1) button.classList.add('step-active')
-    if (index === playingStep) button.classList.add('step-playing')
+    updateStepDisplay(button, index, pattern)
   }
 }
 
@@ -452,6 +455,14 @@ function renderSteps() {
   debug.textContent = `step: ${playingStep >= 0 ? playingStep : '-'}, focus: ${focusedWidget?.id}`
 }
 
+function renderBassSteps() {
+  for (let i = 0; i < STEPS; i += 1) {
+    const step = bassStepButtons[i]
+    updateStepDisplay(step, i, bassPattern)
+  }
+}
+
+
 
 /**************************************************************************************** 
  * MAIN GAME LOOP
@@ -461,6 +472,7 @@ function update() {
   if (gameStarted) {
     handleControls(1)
     handleControls(2)
+    renderBassSteps()
     renderSteps()
   } else if (SYSTEM.ONE_PLAYER || SYSTEM.TWO_PLAYER) {
     startGame()
@@ -474,6 +486,7 @@ function startGame() {
       showBPM()
       document.querySelector('#start-screen').classList.add('hidden')
       document.querySelector('#running-app').classList.remove('hidden')
+      renderBassSteps()
       renderSteps()
       focus(playButton, 1)
       focus(bpmControl, 2)
