@@ -217,7 +217,7 @@ const AudioEngine = {
       this.kick.triggerAttackRelease('C1', '8n', time, velocity)
     } else if (sampleName === SD) {
       // TODO don't hardcode velocity here
-      this.snare.triggerAttackRelease('8n', time, velocity * 2)
+      this.snare.triggerAttackRelease('8n', time, velocity * 3)
     } else if (sampleName === HH) {
       // TODO don't hardcode velocity here
       this.hh.triggerAttackRelease('8n', time, velocity * 0.5)
