@@ -23,7 +23,7 @@ let previousInput = {
         up: false,
         down: false,
         a: false,
-    }        
+    }
 }
 
 const status = document.querySelector('#status')
@@ -94,6 +94,7 @@ const AudioEngine = {
     if (this.initialized) return
 
     this.kick = new Tone.MembraneSynth().toDestination()
+    this.snare = new Tone.MembraneSynth().toDestination()
     this.sequence = new Tone.Sequence((time, stepIndex) => {
       // Play everything that happens on the current tick.
       if (this.onStep) this.onStep(stepIndex)
@@ -134,8 +135,13 @@ const AudioEngine = {
 
   triggerDrum(sampleName, time, velocity) {
     // TODO support more drum types
-    if (sampleName !== BD || !this.kick) return
-    this.kick.triggerAttackRelease('C1', '8n', time, velocity)
+    if (sampleName === BD) {
+      this.kick.triggerAttackRelease('C1', '8n', time, velocity)
+    } else if (sampleName === SD) {
+      this.snare.triggerAttackRelease('B3', '8n', time, velocity)
+    } else {
+        console.log(`Unknown drum ${sampleName}`)
+    }
   },
 
   isPlaying() {
