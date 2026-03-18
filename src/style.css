@@ -228,3 +228,7 @@ html, body {
   justify-self: center;
   align-self: start;
 }
+
+.active-key {
+  background: yellow !important;
+}

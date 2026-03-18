@@ -115,6 +115,7 @@ for (let index = 0; index < STEPS; index += 1) {
 
 // Bass pitch display
 const bassKeyboard = document.querySelector('#bass-pitches')
+const bassKeys = []
 
 const PITCHES = 24
 for (let index = 0; index < PITCHES; index += 1) {
@@ -125,6 +126,7 @@ for (let index = 0; index < PITCHES; index += 1) {
     key.dataset.row = 1
     key.dataset.col = index
     bassKeyboard.appendChild(key)
+    bassKeys.push(key)
 }
 
 /**********************************************************************
@@ -462,6 +464,19 @@ function renderBassSteps() {
   }
 }
 
+function renderBassKeys() {
+    for (let i = 1; i < PITCHES; i += 1) {
+      const pitch = i + 1
+      const key = bassKeys[i]
+      // TODO this is wrong: we should display the key for the SELECTED beat
+      if (bassPattern[playingStep] === pitch) {
+          key.classList.add("active-key")
+      } else {
+          console.log(`key ${i} pitch ${pitch} != ${bassPattern[playingStep]}`)
+          key.classList.remove("active-key")
+      }
+  }
+}
 
 
 /**************************************************************************************** 
@@ -473,6 +488,7 @@ function update() {
     handleControls(1)
     handleControls(2)
     renderBassSteps()
+    renderBassKeys()
     renderSteps()
   } else if (SYSTEM.ONE_PLAYER || SYSTEM.TWO_PLAYER) {
     startGame()
@@ -487,6 +503,7 @@ function startGame() {
       document.querySelector('#start-screen').classList.add('hidden')
       document.querySelector('#running-app').classList.remove('hidden')
       renderBassSteps()
+      renderBassKeys()
       renderSteps()
       focus(playButton, 1)
       focus(bpmControl, 2)
