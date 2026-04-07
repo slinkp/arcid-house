@@ -50,5 +50,5 @@ __vite-browser-external:module:3 Uncaught Error: Module "module" has been extern
 
   - using vanilla WebAudio, not tone.js
 
-Another blog about doing from scratch:
+Another blog about doing from scratch using AnalyserNode
 https://davidmatthew.ie/creating-an-oscilloscope-with-javascript/

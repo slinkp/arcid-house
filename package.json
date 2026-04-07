@@ -16,6 +16,7 @@
     "dependencies": {
         "@rcade/plugin-input-classic": "^0.2.1",
         "@rcade/plugin-input-spinners": "^0.2.2",
+        "oscilloscope": "^1.3.0",
         "tone": "^15.1.22"
     }
 }
