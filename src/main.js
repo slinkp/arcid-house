@@ -154,7 +154,7 @@ let whiteKeyIndex = 0
 for (let index = 0; index < PITCHES; index += 1) {
     const { note, isBlack } = bassKeyLayout[index]
     const key = document.createElement('div')
-    key.setAttribute('tabIndex', -1)
+    key.setAttribute('tabindex', -1)
     key.classList.add('keyboard-key')
     key.classList.add(isBlack ? 'keyboard-key-black' : 'keyboard-key-white')
     key.dataset.stepIndex = index
