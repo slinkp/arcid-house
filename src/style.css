@@ -257,7 +257,6 @@ html, body {
   left: var(--key-left);
   width: var(--key-width);
   border: 1px solid #000;
-  border-radius: 0 0 2px 2px;
 }
 
 .keyboard-key-white {
