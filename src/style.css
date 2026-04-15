@@ -262,15 +262,15 @@ html, body {
 
 .keyboard-key-white {
   height: 100%;
-  background: linear-gradient(to bottom, #fffdf5 0%, #f6f1df 100%);
+  background: #fff;
   z-index: 1;
 }
 
 .keyboard-key-black {
   height: 62%;
-  background: linear-gradient(to bottom, #050505 0%, #2c2c2c 78%, #0a0a0a 100%);
+  background: #000;
   z-index: 2;
-  box-shadow: inset -1px 0 1px rgba(255, 255, 255, 0.08);
+  box-shadow: none;
 }
 
 .keyboard-key-white.editing-key {
