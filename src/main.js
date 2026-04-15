@@ -6,7 +6,7 @@ import { PLAYER_1 as SP1, PLAYER_2 as SP2 } from "@rcade/plugin-input-spinners"
 const STEPS = 16
 const DEFAULT_BPM = 130
 
-const CENTER_PITCH = 40 // MIDI E2 approx 82 Hz
+const LOWEST_PITCH = 28 // MIDI E1 approx 41 Hz
 
 const SPIN1 = SP1.SPINNER
 const SPIN2 = SP2.SPINNER
@@ -91,7 +91,7 @@ for (let row = 0; row < DRUM_ROW_LABELS.length; row += 1) {
 /************************************************************************************
 Build bass sequencer grid UX
 
-Pitches are abstract semitones 1-n, relative to a default center pitch.
+Pitches are abstract semitones 1-n, relative to a lowest pitch.
 We'll assume any audio backend we want supports MIDI pitch?
 ************************************************************************************/
 
@@ -262,7 +262,7 @@ const AudioEngine = {
   },
 
   triggerBass(stepPitch, time, velocity) {
-      const pitch = new Tone.Frequency(stepPitch + CENTER_PITCH - 12, "midi")
+      const pitch = new Tone.Frequency(stepPitch + LOWEST_PITCH, "midi")
       // console.debug(`*** PLAYING ${stepPitch} ${pitch} at ${time}`)
       this.bass.triggerAttackRelease(pitch, "16n")
   },
