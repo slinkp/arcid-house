@@ -91,19 +91,21 @@ for (let row = 0; row < DRUM_ROW_LABELS.length; row += 1) {
 /************************************************************************************
 Build bass sequencer grid UX
 
-Pitches are abstract semitones 1-n, relative to a lowest pitch.
+Pitches are abstract semitones 0-n, relative to a lowest pitch.
 We'll assume any audio backend we want supports MIDI pitch?
 ************************************************************************************/
 
 // random initial bassline, why not
-const _bassInitChoices = [1, 1, 2, 12, 12, 12, 13, 10, 12, 10, 24, 24, 19, 19, 0, 0, 0, 0, 0, 0]
+const REST = -1
+const _bassInitChoices = [0, 0, 1, 12, 12, 12, 12, 14, 13, 10, 10, 9, 24, 24, 18, 18, REST, REST, REST, REST, REST, REST]
+
 let bassPattern = []
 for (let i = 0; i < STEPS; i += 1) {
     const j = Math.floor(Math.random() * _bassInitChoices.length)
     const initialPitch = _bassInitChoices[j]
     bassPattern.push({
-      active: initialPitch > 0,
-      pitch: initialPitch > 0 ? initialPitch : 12
+      active: initialPitch !== REST,
+      pitch: initialPitch !== REST ? initialPitch : 12
     })
 }
 console.debug(`Bass pattern: ${bassPattern}`)
@@ -160,7 +162,7 @@ for (let index = 0; index < PITCHES; index += 1) {
     key.dataset.stepIndex = index
     key.dataset.row = 1
     key.dataset.col = index
-    key.dataset.note = note
+    key.dataset.note = note // Is this useful?
 
     if (isBlack) {
         const left = Math.min(100 - blackKeyWidth, Math.max(0, whiteKeyIndex * whiteKeyWidth - blackKeyWidth / 2))
@@ -376,7 +378,7 @@ function bassApplyDelta(focusedWidget, delta) {
   if (Number.isNaN(beat)) return
   const currentPitch = bassPattern[beat].pitch
   const incr = delta > 0? 1 : -1    
-  const nextPitch = Math.max(1, Math.min(PITCHES, currentPitch + incr))
+  const nextPitch = Math.max(0, Math.min(PITCHES - 1, currentPitch + incr))
   bassPattern[beat].pitch = nextPitch
 }
 
@@ -598,10 +600,8 @@ function renderBassKeys() {
     const selectedStep = selectedBassStep()
     const focusedPitch = selectedStep === null ? undefined : bassPattern[selectedStep].pitch
 
-    // TODO i don't really like having pitch 1-based and index 0-based,
-    // but semitones 1-12 is easier for player to grok. What do?
     for (let i = 0; i < PITCHES; i += 1) {
-      const pitch = i + 1
+      const pitch = i
       const key = bassKeys[i]
 
       if (pitch === focusedPitch) {
