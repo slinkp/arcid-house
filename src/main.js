@@ -129,7 +129,7 @@ for (let index = 0; index < STEPS; index += 1) {
 const bassKeyboard = document.querySelector('#bass-pitches')
 const bassKeys = []
 
-const PITCHES = 24
+const PITCHES = 25
 const BASS_KEY_PATTERN = [
   { note: 'E', isBlack: false },
   { note: 'F', isBlack: false },
