@@ -11,6 +11,16 @@ const CENTER_PITCH = 43 // MIDI G2 approx 97 Hz
 const SPIN1 = SP1.SPINNER
 const SPIN2 = SP2.SPINNER
 
+
+// hack 1
+import * as oscilloscope from 'oscilloscope'
+
+
+// hack 2
+// import { createRequire } from 'module'
+// const require = createRequire(import.meta.url)
+// const oscilloscope = require('oscilloscope')
+
 let playingStep = -1
 let previousInput = {
     1: {
