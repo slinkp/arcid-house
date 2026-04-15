@@ -160,11 +160,11 @@ html, body {
 
 #bass-pitches {
     margin-top: 4px;
-    display: grid;
-    grid-template-columns: repeat(24, 1fr);
-    gap: 0px;
-    background: #222;      /* visible strip under the steps */
-    padding-top: 1px;
+    position: relative;
+    height: 24px;
+    background: #222;
+    border: 1px solid #444;
+    overflow: hidden;
 }
 
 /***************************************************************************
@@ -252,19 +252,45 @@ html, body {
 /* Bass pitch keyboard thing */
 
 .keyboard-key {
-  /* Explicit size so keys are clearly visible */
-  width: 6px;
-  height: 16px;
+  position: absolute;
+  top: 0;
+  left: var(--key-left);
+  width: var(--key-width);
   border: 1px solid #000;
-  background: #FFF;
-  justify-self: center;
-  align-self: start;
+  border-radius: 0 0 2px 2px;
 }
 
-.editing-key {
-  background: green !important;
+.keyboard-key-white {
+  height: 100%;
+  background: linear-gradient(to bottom, #fffdf5 0%, #f6f1df 100%);
+  z-index: 1;
 }
 
-.playing-key {
-  background: yellow !important;
+.keyboard-key-black {
+  height: 62%;
+  background: linear-gradient(to bottom, #050505 0%, #2c2c2c 78%, #0a0a0a 100%);
+  z-index: 2;
+  box-shadow: inset -1px 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.keyboard-key-white.editing-key {
+  background: #2faa4a !important;
+}
+
+.keyboard-key-black.editing-key {
+  background: #1b7f32 !important;
+}
+
+.keyboard-key-white.playing-key {
+  background: #ffd447 !important;
+}
+
+.keyboard-key-black.playing-key {
+  background: #c89a00 !important;
+}
+
+.keyboard-key-black.focus-p1,
+.keyboard-key-black.focus-p2,
+.keyboard-key-black.focus-p1.focus-p2 {
+  outline-offset: -1px;
 }

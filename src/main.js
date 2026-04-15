@@ -6,7 +6,7 @@ import { PLAYER_1 as SP1, PLAYER_2 as SP2 } from "@rcade/plugin-input-spinners"
 const STEPS = 16
 const DEFAULT_BPM = 130
 
-const CENTER_PITCH = 43 // MIDI G2 approx 97 Hz
+const CENTER_PITCH = 40 // MIDI E2 approx 82 Hz
 
 const SPIN1 = SP1.SPINNER
 const SPIN2 = SP2.SPINNER
@@ -130,13 +130,48 @@ const bassKeyboard = document.querySelector('#bass-pitches')
 const bassKeys = []
 
 const PITCHES = 24
+const BASS_KEY_PATTERN = [
+  { note: 'E', isBlack: false },
+  { note: 'F', isBlack: false },
+  { note: 'F#', isBlack: true },
+  { note: 'G', isBlack: false },
+  { note: 'G#', isBlack: true },
+  { note: 'A', isBlack: false },
+  { note: 'A#', isBlack: true },
+  { note: 'B', isBlack: false },
+  { note: 'C', isBlack: false },
+  { note: 'C#', isBlack: true },
+  { note: 'D', isBlack: false },
+  { note: 'D#', isBlack: true },
+]
+
+const bassKeyLayout = Array.from({ length: PITCHES }, (_, index) => BASS_KEY_PATTERN[index % BASS_KEY_PATTERN.length])
+const totalWhiteKeys = bassKeyLayout.filter((key) => !key.isBlack).length
+const whiteKeyWidth = 100 / totalWhiteKeys
+const blackKeyWidth = whiteKeyWidth * 0.62
+let whiteKeyIndex = 0
+
 for (let index = 0; index < PITCHES; index += 1) {
+    const { note, isBlack } = bassKeyLayout[index]
     const key = document.createElement('div')
     key.setAttribute('tabIndex', -1)
     key.classList.add('keyboard-key')
+    key.classList.add(isBlack ? 'keyboard-key-black' : 'keyboard-key-white')
     key.dataset.stepIndex = index
     key.dataset.row = 1
     key.dataset.col = index
+    key.dataset.note = note
+
+    if (isBlack) {
+        const left = Math.min(100 - blackKeyWidth, Math.max(0, whiteKeyIndex * whiteKeyWidth - blackKeyWidth / 2))
+        key.style.setProperty('--key-left', `${left}%`)
+        key.style.setProperty('--key-width', `${blackKeyWidth}%`)
+    } else {
+        key.style.setProperty('--key-left', `${whiteKeyIndex * whiteKeyWidth}%`)
+        key.style.setProperty('--key-width', `${whiteKeyWidth}%`)
+        whiteKeyIndex += 1
+    }
+
     bassKeyboard.appendChild(key)
     bassKeys.push(key)
 }
