@@ -6,7 +6,7 @@ import { PLAYER_1 as SP1, PLAYER_2 as SP2 } from "@rcade/plugin-input-spinners"
 const STEPS = 16
 const DEFAULT_BPM = 130
 
-const CENTER_PITCH = 43 // MIDI G2 approx 97 Hz
+const LOWEST_PITCH = 28 // MIDI E1 approx 41 Hz
 
 const SPIN1 = SP1.SPINNER
 const SPIN2 = SP2.SPINNER
@@ -91,19 +91,21 @@ for (let row = 0; row < DRUM_ROW_LABELS.length; row += 1) {
 /************************************************************************************
 Build bass sequencer grid UX
 
-Pitches are abstract semitones 1-n, relative to a default center pitch.
+Pitches are abstract semitones 0-n, relative to a lowest pitch.
 We'll assume any audio backend we want supports MIDI pitch?
 ************************************************************************************/
 
 // random initial bassline, why not
-const _bassInitChoices = [1, 1, 2, 12, 12, 12, 13, 10, 12, 10, 24, 24, 19, 19, 0, 0, 0, 0, 0, 0]
+const REST = -1
+const _bassInitChoices = [0, 0, 1, 12, 12, 12, 12, 14, 13, 10, 10, 9, 24, 24, 18, 18, REST, REST, REST, REST, REST, REST]
+
 let bassPattern = []
 for (let i = 0; i < STEPS; i += 1) {
     const j = Math.floor(Math.random() * _bassInitChoices.length)
     const initialPitch = _bassInitChoices[j]
     bassPattern.push({
-      active: initialPitch > 0,
-      pitch: initialPitch > 0 ? initialPitch : 12
+      active: initialPitch !== REST,
+      pitch: initialPitch !== REST ? initialPitch : 12
     })
 }
 console.debug(`Bass pattern: ${bassPattern}`)
@@ -129,14 +131,49 @@ for (let index = 0; index < STEPS; index += 1) {
 const bassKeyboard = document.querySelector('#bass-pitches')
 const bassKeys = []
 
-const PITCHES = 24
+const PITCHES = 25
+const BASS_KEY_PATTERN = [
+  { note: 'E', isBlack: false },
+  { note: 'F', isBlack: false },
+  { note: 'F#', isBlack: true },
+  { note: 'G', isBlack: false },
+  { note: 'G#', isBlack: true },
+  { note: 'A', isBlack: false },
+  { note: 'A#', isBlack: true },
+  { note: 'B', isBlack: false },
+  { note: 'C', isBlack: false },
+  { note: 'C#', isBlack: true },
+  { note: 'D', isBlack: false },
+  { note: 'D#', isBlack: true },
+]
+
+const bassKeyLayout = Array.from({ length: PITCHES }, (_, index) => BASS_KEY_PATTERN[index % BASS_KEY_PATTERN.length])
+const totalWhiteKeys = bassKeyLayout.filter((key) => !key.isBlack).length
+const whiteKeyWidth = 100 / totalWhiteKeys
+const blackKeyWidth = whiteKeyWidth * 0.62
+let whiteKeyIndex = 0
+
 for (let index = 0; index < PITCHES; index += 1) {
+    const { note, isBlack } = bassKeyLayout[index]
     const key = document.createElement('div')
-    key.setAttribute('tabIndex', -1)
+    key.setAttribute('tabindex', -1)
     key.classList.add('keyboard-key')
+    key.classList.add(isBlack ? 'keyboard-key-black' : 'keyboard-key-white')
     key.dataset.stepIndex = index
     key.dataset.row = 1
     key.dataset.col = index
+    key.dataset.note = note // Is this useful?
+
+    if (isBlack) {
+        const left = Math.min(100 - blackKeyWidth, Math.max(0, whiteKeyIndex * whiteKeyWidth - blackKeyWidth / 2))
+        key.style.setProperty('--key-left', `${left}%`)
+        key.style.setProperty('--key-width', `${blackKeyWidth}%`)
+    } else {
+        key.style.setProperty('--key-left', `${whiteKeyIndex * whiteKeyWidth}%`)
+        key.style.setProperty('--key-width', `${whiteKeyWidth}%`)
+        whiteKeyIndex += 1
+    }
+
     bassKeyboard.appendChild(key)
     bassKeys.push(key)
 }
@@ -227,7 +264,7 @@ const AudioEngine = {
   },
 
   triggerBass(stepPitch, time, velocity) {
-      const pitch = new Tone.Frequency(stepPitch + CENTER_PITCH - 12, "midi")
+      const pitch = new Tone.Frequency(stepPitch + LOWEST_PITCH, "midi")
       // console.debug(`*** PLAYING ${stepPitch} ${pitch} at ${time}`)
       this.bass.triggerAttackRelease(pitch, "16n")
   },
@@ -341,7 +378,7 @@ function bassApplyDelta(focusedWidget, delta) {
   if (Number.isNaN(beat)) return
   const currentPitch = bassPattern[beat].pitch
   const incr = delta > 0? 1 : -1    
-  const nextPitch = Math.max(1, Math.min(PITCHES, currentPitch + incr))
+  const nextPitch = Math.max(0, Math.min(PITCHES - 1, currentPitch + incr))
   bassPattern[beat].pitch = nextPitch
 }
 
@@ -563,10 +600,8 @@ function renderBassKeys() {
     const selectedStep = selectedBassStep()
     const focusedPitch = selectedStep === null ? undefined : bassPattern[selectedStep].pitch
 
-    // TODO i don't really like having pitch 1-based and index 0-based,
-    // but semitones 1-12 is easier for player to grok. What do?
     for (let i = 0; i < PITCHES; i += 1) {
-      const pitch = i + 1
+      const pitch = i
       const key = bassKeys[i]
 
       if (pitch === focusedPitch) {
