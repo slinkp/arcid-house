@@ -71,6 +71,30 @@ button {
   padding-bottom: 10px;
 }
 
+/* Side-by-side test for bitmap-font-css filter hack (scoped, not global) */
+#start-screen .aa-demo {
+  margin: 4px 0 6px;
+  padding-left: 50px;
+  text-align: left;
+  color: #9aad;
+}
+
+#start-screen .aa-demo-line {
+  margin: 0;
+  padding: 2px 0;
+  line-height: 1;
+}
+
+#start-screen .aa-demo-tag {
+  display: inline-block;
+  width: 14px;
+  color: #6a7988;
+}
+
+#start-screen .aa-demo-filter {
+  filter: contrast(100.00001%);
+}
+
 #debug {
   display: none;
   font-size: 8px;
