@@ -33,6 +33,18 @@
 
       <p><br><br><br>THERE IS NO OBJECTIVE ... ONLY GROOVE</p>
 
+      <ul id="resolution-debug" style="color: yellow;">
+      </ul>
+      <script>
+        el = document.getElementById("resolution-debug");
+        el.innerHTML = `<li>devicePixelRatio: ${window.devicePixelRatio}</li>`;
+        el.innerHTML += `<li>inner width / height: ${window.innerWidth / window.innerHeight}</li>`;
+        var rect = document.documentElement.getBoundingClientRect();
+        el.innerHTML += `<li>DOMRect: x: ${rect.x}, y: ${rect.y}, width: ${rect.width}, height: ${rect.height}</li>`
+        var vpt = window.visualViewport;
+        el.innerHTML += `<li>viewport scale: ${vpt.scale}, offset left: ${vpt.offsetLeft}, offset top: ${vpt.offsetTop}</li>`
+      </script>
+      
       <p><br><br><br><span class="manual-em">PRESS 1P START</span></p>
     </div>
   </div>
