@@ -4,6 +4,15 @@
   box-sizing: border-box;
 }
 
+
+@font-face {
+    /* Normal size is 16px, use even multiples of that.  8px also allowed.  */
+    font-family: "Web437_IBM_Model3x_Alt1";
+    src: url("/fonts/Web437_IBM_Model3x_Alt1.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+}
+
 html, body {
   /*  
   width: 336px;
@@ -14,7 +23,7 @@ html, body {
   overflow: hidden;
   background-color: #1a1a2e;
   color: #eee;
-  font-family: Source Code Pro, Andale Mono, AndaleMono, Lucida Console, Lucida Sans Typewriter, monaco, Bitstream Vera Sans Mono, monospace;
+/*  font-family: Source Code Pro, Andale Mono, AndaleMono, Lucida Console, Lucida Sans Typewriter, monaco, Bitstream Vera Sans Mono, monospace; */
 
 
 }
@@ -29,7 +38,7 @@ html, body {
 
 #start-screen h1 {
   font-size: 16px;
-  font-weight: 700;
+  /* font-weight: 700; doesn't look good on small low res screen */
 }
 
  
@@ -54,7 +63,7 @@ html, body {
 #debug {
   display: none;
   font-size: 8px;
-  font-weight: 700;
+  /* font-weight: 700; doesn't look good on small low res screen */
   color: #99a;
   width: 260px;
   padding-left: 4px;
@@ -63,8 +72,8 @@ html, body {
 
 #error {
   color: #f00;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 8px;
+  /* font-weight: 700; doesn't look good on small low res screen */
   text-align: center;
 }
 
@@ -109,7 +118,7 @@ html, body {
   grid-template-columns: auto repeat(16, 1fr);
   grid-template-rows: auto repeat(10, 1fr);
   gap: 0px;
-  font-size: 7px;
+  font-size: 8px;
   align-items: center; /* vertical */
   border: 1px dashed #33c;
   /* margin-bottom: 5px; */
@@ -124,7 +133,7 @@ html, body {
   align-items: start;
   border: 1px dashed #aa0;
   color: #ccc;
-  font-size: 7px;
+  font-size: 8px;
   /* margin-bottom: 5px; */
   padding-top: 2px;
 }
@@ -134,8 +143,8 @@ html, body {
     grid-column: 1 / -1;
     width: 100%;
     text-align: center;
-    font-size: 10px;
-    font-weight: 700;
+    font-size: 8px;
+    /* Still nope on font-weight: 700 */
     line-height: 1;
     padding-top: 1px;
     margin-bottom: 1px;
@@ -146,7 +155,7 @@ html, body {
     grid-column: 1 / -1;
     width: 100%;
     text-align: center;
-    font-size: 6px;
+    font-size: 8px;
     line-height: 1;
     color: #ed9;
     margin-top: 14px;
@@ -175,7 +184,7 @@ html, body {
   background: #333;
   border: 1px solid #555;
   color: #eee;
-  font-size: 10px;
+  font-size: 8px;
   width: 13px;
   height: 13px;
   cursor: pointer;
@@ -194,8 +203,8 @@ html, body {
   display: flex;
   align-items: center;
   gap: 3px;
-  font-size: 9px;
-  font-weight: 700;
+  font-size: 8px;
+  /* Still nope on font-weight: 700 */
   padding-left: 10px;
 }
 
@@ -203,8 +212,8 @@ html, body {
   background: #111;
   border: 1px solid #555;
   color: #eee;
-  font-size: 9px;
-  font-weight: 700;
+  font-size: 8px;
+  /* Still nope on font-weight: 700 */
   width: 36px;
   text-align: right;
   padding: 2px 2px;
