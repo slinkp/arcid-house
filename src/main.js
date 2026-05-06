@@ -29,7 +29,6 @@ let previousInput = {
     }
 }
 
-const status = document.querySelector('#status')
 const debug = document.querySelector('#debug span')
 const playButton = document.querySelector('#play-pause')
 const bpmControl = document.querySelector('#bpm')
