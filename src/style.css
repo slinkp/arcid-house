@@ -14,12 +14,9 @@
 }
 
 html, body {
-  /*  
+  /* RCade cabinet viewport (measured on hardware: dpr 1, in/cl/scr 336×262) */
   width: 336px;
   height: 262px;
- */
-  width: 340px;
-  height: 270px;
   overflow: hidden;
   background-color: #1a1a2e;
   color: #eee;
@@ -331,9 +328,9 @@ button {
   gap: 0px;
   /* Never go outside the RCade screen! */
   overflow: hidden;
-  /* Trial-and-error lining up to edges of RCade screen */
-  max-height: 258px; /* Was 262, 270, 280, 274, 270... and back... then down a bit */
-  max-width: 336px; /* Was 336, 340, 346, 340... and back */
+  /* Trial-and-error lining up edges to RCade screen, confirmed by measurement */
+  max-height: 262px;
+  max-width: 336px;
   padding-top: 8px; /* was 0, 10, 6 */
   padding-left: 1px; /* was 0, 8, 16, 10, 6, 2 ... with invisible border oops */
 }
