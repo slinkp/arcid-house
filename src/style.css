@@ -49,8 +49,8 @@ button {
   display: flex;
   flex-direction: column;
   text-align: center;
-  padding: 8px;
-  gap: 8px;
+  padding: 4px;
+  gap: 2px;
   font-size: 8px;
 }
 
@@ -66,33 +66,214 @@ button {
 
 #start-screen ul {
   text-align: left;
-  padding-left: 50px;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-left: 4px;
+  padding-top: 2px;
+  padding-bottom: 0;
+  list-style: none;
 }
 
-/* Side-by-side test for bitmap-font-css filter hack (scoped, not global) */
-#start-screen .aa-demo {
-  margin: 4px 0 6px;
-  padding-left: 50px;
+/* Temporary pixel/font diagnostics (RCade CRT tuning) */
+#pixel-diagnostics {
   text-align: left;
   color: #9aad;
 }
 
-#start-screen .aa-demo-line {
+#pixel-diagnostics .diag-title {
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+#pixel-diagnostics .diag-frame {
+  position: relative;
+  border: 1px solid #666;
+  padding: 3px;
+}
+
+#pixel-diagnostics .diag-corner {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border: 1px solid #0f0;
+}
+
+#pixel-diagnostics .diag-corner-tl {
+  top: -1px;
+  left: -1px;
+  border-right: none;
+  border-bottom: none;
+}
+
+#pixel-diagnostics .diag-corner-tr {
+  top: -1px;
+  right: -1px;
+  border-left: none;
+  border-bottom: none;
+}
+
+#pixel-diagnostics .diag-corner-bl {
+  bottom: -1px;
+  left: -1px;
+  border-right: none;
+  border-top: none;
+}
+
+#pixel-diagnostics .diag-corner-br {
+  bottom: -1px;
+  right: -1px;
+  border-left: none;
+  border-top: none;
+}
+
+#pixel-diagnostics .diag-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+#pixel-diagnostics .diag-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+#pixel-diagnostics .diag-label {
+  display: inline-block;
+  width: 16px;
+  color: #6a7988;
+  flex-shrink: 0;
+}
+
+#pixel-diagnostics .diag-filter {
+  filter: contrast(100.00001%);
+}
+
+#pixel-diagnostics .diag-fs16 {
+  font-size: 16px;
+}
+
+#pixel-diagnostics .diag-grid-8 {
+  width: 32px;
+  height: 32px;
+  background:
+    linear-gradient(to right, #666 1px, transparent 1px),
+    linear-gradient(to bottom, #666 1px, transparent 1px);
+  background-size: 8px 8px;
+  image-rendering: pixelated;
+}
+
+#pixel-diagnostics .diag-stripe {
+  image-rendering: pixelated;
+}
+
+#pixel-diagnostics .diag-stripe-h1 {
+  width: 32px;
+  height: 8px;
+  background: repeating-linear-gradient(to bottom, #eee 0 1px, #111 1px 2px);
+}
+
+#pixel-diagnostics .diag-stripe-v1 {
+  width: 8px;
+  height: 32px;
+  background: repeating-linear-gradient(to right, #eee 0 1px, #111 1px 2px);
+}
+
+#pixel-diagnostics .diag-stripe-h2 {
+  width: 32px;
+  height: 8px;
+  background: repeating-linear-gradient(to bottom, #eee 0 2px, #111 2px 4px);
+}
+
+#pixel-diagnostics .diag-stripe-v2 {
+  width: 8px;
+  height: 32px;
+  background: repeating-linear-gradient(to right, #eee 0 2px, #111 2px 4px);
+}
+
+#pixel-diagnostics .diag-block-fill {
+  width: 8px;
+  height: 8px;
+  background: #eee;
+}
+
+#pixel-diagnostics .diag-block-border {
+  width: 8px;
+  height: 8px;
+  border: 1px solid #eee;
+  background: #111;
+}
+
+#pixel-diagnostics .diag-offset {
+  width: 8px;
+  height: 16px;
+  background: #111;
+  position: relative;
+}
+
+#pixel-diagnostics .diag-offset::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #eee;
+}
+
+#pixel-diagnostics .diag-offset-0::before {
+  left: 0;
+}
+
+#pixel-diagnostics .diag-offset-1::before {
+  left: 1px;
+}
+
+#pixel-diagnostics .diag-test-box {
+  width: 8px;
+  height: 8px;
+  background: #f0f;
+  visibility: hidden;
+  position: absolute;
+  pointer-events: none;
+}
+
+#pixel-diagnostics .diag-font-ladder p {
   margin: 0;
-  padding: 2px 0;
+  padding: 1px 0;
   line-height: 1;
 }
 
-#start-screen .aa-demo-tag {
-  display: inline-block;
-  width: 14px;
-  color: #6a7988;
+#pixel-diagnostics .diag-dom-text {
+  color: #eee;
 }
 
-#start-screen .aa-demo-filter {
-  filter: contrast(100.00001%);
+#pixel-diagnostics canvas {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+#pixel-diagnostics .diag-swatches {
+  gap: 2px;
+}
+
+#pixel-diagnostics .diag-swatch {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border: 1px solid #444;
+}
+
+#pixel-diagnostics .diag-swatch-eee { background: #eee; }
+#pixel-diagnostics .diag-swatch-fff { background: #fff; }
+#pixel-diagnostics .diag-swatch-cyan { background: #00e5ff; }
+#pixel-diagnostics .diag-swatch-red { background: #ff2b2b; }
+#pixel-diagnostics .diag-swatch-green { background: #0f0; }
+
+#resolution-debug {
+  color: #ff0;
+  font-size: 8px;
+  line-height: 1.1;
 }
 
 #debug {

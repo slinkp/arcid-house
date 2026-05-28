@@ -666,7 +666,65 @@ function startGame() {
  Global initialization on load
 *************************************************************************/
 
+function initPixelDiagnostics() {
+  const metricsEl = document.querySelector('#resolution-debug')
+  const testBox = document.querySelector('#diag-test-box')
+  const fontCanvas = document.querySelector('#diag-canvas')
+  const pixelCanvas = document.querySelector('#diag-canvas-pixels')
+  if (!metricsEl) return
+
+  const docRect = document.documentElement.getBoundingClientRect()
+  const vpt = window.visualViewport
+  const testRect = testBox?.getBoundingClientRect()
+  const bodyStyle = getComputedStyle(document.body)
+
+  const lines = [
+    `dpr: ${window.devicePixelRatio}`,
+    `inner: ${window.innerWidth}x${window.innerHeight}`,
+    `client: ${document.documentElement.clientWidth}x${document.documentElement.clientHeight}`,
+    `screen: ${screen.width}x${screen.height}`,
+    `docRect: ${docRect.width.toFixed(1)}x${docRect.height.toFixed(1)} @${docRect.x.toFixed(1)},${docRect.y.toFixed(1)}`,
+    `vvp: scale ${vpt?.scale ?? '?'} off ${vpt?.offsetLeft ?? '?'},${vpt?.offsetTop ?? '?'}`,
+    `8box: ${testRect ? `${testRect.width.toFixed(2)}x${testRect.height.toFixed(2)}` : 'n/a'}`,
+    `font: ${bodyStyle.fontSize} lh ${bodyStyle.lineHeight}`,
+  ]
+
+  metricsEl.innerHTML = lines.map((line) => `<li>${line}</li>`).join('')
+
+  if (fontCanvas) {
+    const ctx = fontCanvas.getContext('2d')
+    ctx.imageSmoothingEnabled = false
+    document.fonts.ready.then(() => {
+      ctx.clearRect(0, 0, fontCanvas.width, fontCanvas.height)
+      ctx.fillStyle = '#eee'
+      ctx.font = '8px "Web437_IBM_Model3x_Alt1", monospace'
+      ctx.textBaseline = 'top'
+      ctx.fillText('HHii', 0, 0)
+    })
+  }
+
+  if (pixelCanvas) {
+    const ctx = pixelCanvas.getContext('2d')
+    ctx.imageSmoothingEnabled = false
+    ctx.fillStyle = '#111'
+    ctx.fillRect(0, 0, 16, 8)
+    ctx.fillStyle = '#eee'
+    // Pixel-drawn "H" (5x7) at integer coords — no font involved
+    for (const y of [0, 1, 2, 3, 4, 5, 6]) {
+      ctx.fillRect(0, y, 1, 1)
+      ctx.fillRect(4, y, 1, 1)
+    }
+    ctx.fillRect(0, 3, 5, 1)
+    for (const y of [0, 1, 2, 3, 4, 5, 6]) {
+      ctx.fillRect(8, y, 1, 1)
+      ctx.fillRect(12, y, 1, 1)
+    }
+    ctx.fillRect(8, 3, 5, 1)
+  }
+}
+
 AudioEngine.init()
+initPixelDiagnostics()
 try {
   await AudioEngine.startAudioContext()
 } catch {
