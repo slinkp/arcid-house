@@ -678,18 +678,31 @@ function initPixelDiagnostics() {
   const testRect = testBox?.getBoundingClientRect()
   const bodyStyle = getComputedStyle(document.body)
 
-  const lines = [
-    `dpr: ${window.devicePixelRatio}`,
-    `inner: ${window.innerWidth}x${window.innerHeight}`,
-    `client: ${document.documentElement.clientWidth}x${document.documentElement.clientHeight}`,
-    `screen: ${screen.width}x${screen.height}`,
-    `docRect: ${docRect.width.toFixed(1)}x${docRect.height.toFixed(1)} @${docRect.x.toFixed(1)},${docRect.y.toFixed(1)}`,
-    `vvp: scale ${vpt?.scale ?? '?'} off ${vpt?.offsetLeft ?? '?'},${vpt?.offsetTop ?? '?'}`,
-    `8box: ${testRect ? `${testRect.width.toFixed(2)}x${testRect.height.toFixed(2)}` : 'n/a'}`,
-    `font: ${bodyStyle.fontSize} lh ${bodyStyle.lineHeight}`,
+  const box = testRect
+    ? `${testRect.width.toFixed(2)}x${testRect.height.toFixed(2)}`
+    : 'n/a'
+
+  const pairs = [
+    [`dpr ${window.devicePixelRatio}`, `8box ${box}`],
+    [`in ${window.innerWidth}x${window.innerHeight}`, `cl ${document.documentElement.clientWidth}x${document.documentElement.clientHeight}`],
+    [`scr ${screen.width}x${screen.height}`, `fnt ${bodyStyle.fontSize}`],
+    [`doc ${docRect.width.toFixed(0)}x${docRect.height.toFixed(0)}`, `vvp ${vpt?.scale ?? '?'}`],
   ]
 
-  metricsEl.innerHTML = lines.map((line) => `<li>${line}</li>`).join('')
+  metricsEl.innerHTML = pairs
+    .map(([left, right]) => `<li><span>${left}</span><span>${right}</span></li>`)
+    .join('')
+  console.log('[pixel-diag]', {
+    dpr: window.devicePixelRatio,
+    inner: `${window.innerWidth}x${window.innerHeight}`,
+    client: `${document.documentElement.clientWidth}x${document.documentElement.clientHeight}`,
+    screen: `${screen.width}x${screen.height}`,
+    docRect: `${docRect.width.toFixed(1)}x${docRect.height.toFixed(1)}`,
+    vvpScale: vpt?.scale,
+    box,
+    fontSize: bodyStyle.fontSize,
+    lineHeight: bodyStyle.lineHeight,
+  })
 
   if (fontCanvas) {
     const ctx = fontCanvas.getContext('2d')

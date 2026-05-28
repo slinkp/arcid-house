@@ -49,14 +49,14 @@ button {
   display: flex;
   flex-direction: column;
   text-align: center;
-  padding: 4px;
-  gap: 2px;
+  padding: 2px 4px;
+  gap: 1px;
   font-size: 8px;
 }
 
-#start-screen h1 {
-  font-size: 16px;
-  font-weight: normal;
+#start-screen .start-banner {
+  line-height: 1;
+  margin: 0;
 }
 
 #start-screen .manual-em {
@@ -80,13 +80,14 @@ button {
 
 #pixel-diagnostics .diag-title {
   text-align: center;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
+  line-height: 1;
 }
 
 #pixel-diagnostics .diag-frame {
   position: relative;
-  border: 1px solid #666;
-  padding: 3px;
+  border: 1px solid #ccc;
+  padding: 2px;
 }
 
 #pixel-diagnostics .diag-corner {
@@ -128,8 +129,8 @@ button {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px;
-  margin-bottom: 2px;
+  gap: 3px;
+  margin-bottom: 1px;
 }
 
 #pixel-diagnostics .diag-item {
@@ -141,8 +142,12 @@ button {
 #pixel-diagnostics .diag-label {
   display: inline-block;
   width: 16px;
-  color: #6a7988;
+  color: #fff;
   flex-shrink: 0;
+  font-family: ui-monospace, "Courier New", Courier, monospace;
+  font-size: 9px;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
 }
 
 #pixel-diagnostics .diag-filter {
@@ -154,11 +159,12 @@ button {
 }
 
 #pixel-diagnostics .diag-grid-8 {
-  width: 32px;
-  height: 32px;
-  background:
-    linear-gradient(to right, #666 1px, transparent 1px),
-    linear-gradient(to bottom, #666 1px, transparent 1px);
+  width: 24px;
+  height: 24px;
+  background-color: #000;
+  background-image:
+    linear-gradient(to right, #fff 1px, transparent 1px),
+    linear-gradient(to bottom, #fff 1px, transparent 1px);
   background-size: 8px 8px;
   image-rendering: pixelated;
 }
@@ -170,25 +176,25 @@ button {
 #pixel-diagnostics .diag-stripe-h1 {
   width: 32px;
   height: 8px;
-  background: repeating-linear-gradient(to bottom, #eee 0 1px, #111 1px 2px);
+  background: repeating-linear-gradient(to bottom, #fff 0 1px, #000 1px 2px);
 }
 
 #pixel-diagnostics .diag-stripe-v1 {
   width: 8px;
-  height: 32px;
-  background: repeating-linear-gradient(to right, #eee 0 1px, #111 1px 2px);
+  height: 24px;
+  background: repeating-linear-gradient(to right, #fff 0 1px, #000 1px 2px);
 }
 
 #pixel-diagnostics .diag-stripe-h2 {
   width: 32px;
   height: 8px;
-  background: repeating-linear-gradient(to bottom, #eee 0 2px, #111 2px 4px);
+  background: repeating-linear-gradient(to bottom, #fff 0 2px, #000 2px 4px);
 }
 
 #pixel-diagnostics .diag-stripe-v2 {
   width: 8px;
-  height: 32px;
-  background: repeating-linear-gradient(to right, #eee 0 2px, #111 2px 4px);
+  height: 24px;
+  background: repeating-linear-gradient(to right, #fff 0 2px, #000 2px 4px);
 }
 
 #pixel-diagnostics .diag-block-fill {
@@ -206,7 +212,7 @@ button {
 
 #pixel-diagnostics .diag-offset {
   width: 8px;
-  height: 16px;
+  height: 8px;
   background: #111;
   position: relative;
 }
@@ -239,8 +245,12 @@ button {
 
 #pixel-diagnostics .diag-font-ladder p {
   margin: 0;
-  padding: 1px 0;
+  padding: 0;
   line-height: 1;
+}
+
+#pixel-diagnostics .diag-font-ladder .diag-fs16 {
+  font-size: 16px;
 }
 
 #pixel-diagnostics .diag-dom-text {
@@ -270,10 +280,22 @@ button {
 #pixel-diagnostics .diag-swatch-red { background: #ff2b2b; }
 #pixel-diagnostics .diag-swatch-green { background: #0f0; }
 
+/* Readable system font — values come from JS APIs, not from this font */
 #resolution-debug {
-  color: #ff0;
-  font-size: 8px;
+  font-family: ui-monospace, "Courier New", Courier, monospace;
+  font-size: 9px;
   line-height: 1.1;
+  color: #fff;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
+  font-smooth: auto;
+  margin-top: 1px;
+}
+
+#resolution-debug li {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 6px;
 }
 
 #debug {
