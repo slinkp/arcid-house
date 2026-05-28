@@ -709,7 +709,7 @@ function initPixelDiagnostics() {
     ctx.imageSmoothingEnabled = false
     document.fonts.ready.then(() => {
       ctx.clearRect(0, 0, fontCanvas.width, fontCanvas.height)
-      ctx.fillStyle = '#eee'
+      ctx.fillStyle = '#fff'
       ctx.font = '8px "Web437_IBM_Model3x_Alt1", monospace'
       ctx.textBaseline = 'top'
       ctx.fillText('HHii', 0, 0)
@@ -721,7 +721,7 @@ function initPixelDiagnostics() {
     ctx.imageSmoothingEnabled = false
     ctx.fillStyle = '#111'
     ctx.fillRect(0, 0, 16, 8)
-    ctx.fillStyle = '#eee'
+    ctx.fillStyle = '#fff'
     // Pixel-drawn "H" (5x7) at integer coords — no font involved
     for (const y of [0, 1, 2, 3, 4, 5, 6]) {
       ctx.fillRect(0, y, 1, 1)
