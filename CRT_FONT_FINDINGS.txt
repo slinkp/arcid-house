@@ -1,0 +1,121 @@
+aRCid house — CRT / bitmap font investigation
+================================================
+Saved: 2026-05-28 (pause point)
+
+GOAL
+----
+Render text on the RCade cabinet (low-res ~18" CRT) with single-pixel precision,
+matching early-to-mid 1980s arcade game text.
+
+
+HARDWARE / VIEWPORT (CONFIRMED ON CABINET)
+------------------------------------------
+  dpr:     1
+  vvp:     1
+  in:      336×262
+  cl:      336×262
+  scr:     336×262
+  doc:     336×262  (after CSS patch; was 340×270)
+  8box:    8.00×8.00
+
+Conclusion: CSS pixels map 1:1 to device pixels. Scaling/DPR is NOT the problem.
+The visible viewport is 336×262 (4×8 px smaller than original 340×270 design).
+
+CSS change applied: html/body and #running-app max dimensions set to 336×262.
+
+
+CURRENT FONT
+------------
+  Family:  Web437_IBM_Model3x_Alt1 (WOFF in /fonts/)
+  Comment in src/style.css @font-face:
+    "Normal size is 16px, use even multiples of that. 8px also allowed."
+
+  That font appears to be an 8×16 VGA-style design meant for 16px CSS font-size.
+  At 8px the browser scales the glyph down; on the CRT it becomes unreadable.
+
+
+SPLASH SCREEN DIAGNOSTICS (#pixel-diagnostics)
+----------------------------------------------
+Temporary panel on start screen (index.html + src/style.css + initPixelDiagnostics
+in src/main.js). Labels for photo reference:
+
+  G8      8×8 grid (white on black)
+  H1/V1   1px stripes horizontal/vertical
+  H2/V2   2px stripes
+  FIL/BOX filled square vs 1px border
+  X0/X1   1px vertical line at 0 vs 1px offset
+  8-/8+   8px bitmap text, baseline vs contrast(100.00001%) filter
+  16-/16+ 16px bitmap text, same A/B
+  DOM     CSS text "HHii"
+  CVS     canvas fillText with same WOFF
+  PX      canvas fillRect pixel-drawn "HH" (no font)
+  CLR     color swatches
+  Metrics in system monospace (two columns, 9px)
+
+Debug photos:
+  arcade_screen_debug_1/  — first deploy, viewport mismatch visible
+  arcade_screen_debug_2/  — after #fff + 336×262 patch
+
+
+FINDINGS FROM HARDWARE + PHOTOS
+-------------------------------
+1. Geometry works: G8, H1/V1, FIL, BOX render as distinct pixels on CRT.
+2. 8px bitmap text (8- and 8+): identical, both unreadable on hardware.
+   Contrast filter hack does nothing at 8px on this display.
+3. #fff text color: helps visibility of graphics/16px somewhat; does not save 8px.
+4. 16px bitmap text: readable (best text sample on cabinet). +/- filter unclear.
+5. DOM vs CVS: same class of problem (browser font rasterization).
+6. PX (pure pixel draw): crisp — proves display can show hard edges when pixels
+   are placed directly, not via font engine.
+7. System monospace for metrics: much more readable on CRT than bitmap font.
+8. CRT shows cyan/teal cast for "white" in photos; high ambient glare in venue.
+9. Emulator at dpr 4 does not predict CRT font appearance; use cabinet for text.
+
+
+WHY 8px CSS FAILS BUT 1980s ARCADES USED "SMALL" TEXT
+------------------------------------------------------
+Vintage games did not use CSS/@font-face. Text was:
+  - Bitmap glyphs in ROM (typically 8×8 or 8×16 pixels per character)
+  - Blitted to video RAM at integer coordinates, no anti-aliasing, no scaling
+  - High contrast, bold strokes designed for the grid
+
+Our 8px CSS uses a 16px-designed WOFF shrunk by the browser — not native 8×8.
+
+
+OPTIONS CONSIDERED (NOT YET DONE)
+---------------------------------
+A. Native 8px bitmap font  ← USER CHOSEN NEXT STEP
+   Find a font with a true 8×8 (or 8px-native) design, not scaled from 16px.
+
+B. Stay at 16px with this font
+   Use font as designed; rework UI layout for half the character density.
+
+C. Intermediate sizes (10/12/14px)
+   Worth testing but non-integer scale of 16px design often looks worse.
+
+D. Canvas glyph atlas / sprite blit
+   Pre-bake characters as pixels; drawImage at integer coords.
+   Closest to 1980s pipeline; more implementation work.
+
+E. Hybrid UI
+   Bitmap for large static labels; system monospace for small dynamic values.
+
+
+NEXT STEPS (WHEN RESUMING)
+--------------------------
+1. Find and evaluate a bitmap font with native 8px / 8×8 cell (WOFF or PNG atlas).
+2. Test on splash diag ladder before changing running app.
+3. On hardware, compare: readability, stroke weight, "arcade feel" vs Web437 at 16px.
+4. If 8px native works: swap @font-face, keep font-size 8px, line-height 1,
+   -webkit-font-smoothing none, integer positioning.
+5. If still soft: try glyph atlas (canvas blit) for labels.
+6. When done investigating: remove or hide #pixel-diagnostics; restore player-facing
+   start screen.
+7. Optional: update PLAN.md display resolution note from 320×240 to 336×262.
+
+
+USEFUL REFERENCES
+-----------------
+  bitmap-font-css: https://github.com/DavidBuchanan314/bitmap-font-css
+  RCade docs: https://github.com/fcjr/RCade/blob/main/README.md
+  Console fallback: initPixelDiagnostics() logs [pixel-diag] object on load.
